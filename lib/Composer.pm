@@ -23,14 +23,14 @@ my %classmap = ();
 #
 # Returns: reference to Composer object
 sub new {
-  my ($class, $path) = @_;
-  my $self = {};
-  
-  bless $self, $class;
-  
-  $self->{classmap} = $self->ParseClassMap($path);
-  
-  return $self;
+    my ($class, $path) = @_;
+    my $self = {};
+
+    bless $self, $class;
+
+    $self->{classmap} = $self->ParseClassMap($path);
+
+    return $self;
 }
 
 #------------------------------------------------------------------------------
@@ -38,28 +38,28 @@ sub new {
 #
 # Returns: reference to classmap hash
 sub GetClassMap {
-  my $self = shift;
-  
-  return \$self->{classmap};
+    my $self = shift;
+
+    return \$self->{classmap};
 }
 
 #------------------------------------------------------------------------------
 # Match.
-# check whether class name lives in codeowners paths
+# check whether class name lives in code owners paths
 #
-# Returns: reference to classmap hash
+# Returns: bool
 sub Match {
-  my ($self, $class, @paths) = @_;
+    my ($self, $class, @paths) = @_;
 
-  if (not defined $self->{classmap}->{$class}) {
+    if (not defined $self->{classmap}->{$class}) {
+        return 0;
+    }
+
+    foreach (@paths) {
+        return 1 if $self->{classmap}->{$class} =~ /^[\/]?$_.*$/;
+    }
+
     return 0;
-  }
-
-  foreach (@paths) {
-    return 1 if  $self->{classmap}->{$class} =~ /^[\/]?$_.*$/;
-  }
-  
-  return 0;
 }
 
 #------------------------------------------------------------------------------
@@ -67,22 +67,22 @@ sub Match {
 #
 # Returns: hash reference with ${classname} => $path 
 sub ParseClassMap {
-  my ($self, $path) = @_;
-  my %classmap = ();
-  
-  open (FH, $path) or die "can't open classmap file $!";
-  
-  while (<FH>) {
-    chomp $_;
-    next unless /\$baseDir\s\./;
+    my ($self, $path) = @_;
+    my %classmap = ();
 
-    my ($class, $path) = split / => \$baseDir \. /;
-    $classmap{strip($class)} = strip($path);
-  }
-  
-  close(FH);
-  
-  return(\%classmap);
+    open(FH, $path) or die "can't open classmap file $!";
+
+    while (<FH>) {
+        chomp $_;
+        next unless /\$baseDir\s\./;
+
+        my ($class, $path) = split / => \$baseDir \. /;
+        $classmap{strip($class)} = strip($path);
+    }
+
+    close(FH);
+
+    return (\%classmap);
 }
 
 #------------------------------------------------------------------------------
@@ -90,13 +90,13 @@ sub ParseClassMap {
 #
 # Returns: string
 sub strip {
-  my ($line) = @_;
-  
-  $line =~ s/^\s+|\s+$//g;
-  $line =~ s/[',]//g;
-  $line =~ s/\\\\/\\/g;
-  
-  return $line;
+    my ($line) = @_;
+
+    $line =~ s/^\s+|\s+$//g;
+    $line =~ s/[',]//g;
+    $line =~ s/\\\\/\\/g;
+
+    return $line;
 }
 
 1;

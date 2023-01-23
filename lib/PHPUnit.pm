@@ -14,7 +14,7 @@ use warnings;
 use Time::Piece;
 
 use File::Basename;
-use lib dirname (__FILE__);
+use lib dirname(__FILE__);
 
 use Composer;
 use Gitlab;
@@ -23,21 +23,21 @@ use Gitlab;
 # Static properties
 # accumulated owner specific coverage statistics for classes, lines and methods
 my %classes = (
-  'total' => 0,
-  'covered' => 0,
+    'total'   => 0,
+    'covered' => 0,
 );
 
 my %lines = (
-  'total' => 0,
-  'covered' => 0,
+    'total'   => 0,
+    'covered' => 0,
 );
 
 my %methods = (
-  'total' => 0,
-  'covered' => 0,
+    'total'   => 0,
+    'covered' => 0,
 );
 
-my %classreport = ();  
+my %classreport = ();
 
 #------------------------------------------------------------------------------
 # Construct new PHPUnit class
@@ -49,21 +49,21 @@ my %classreport = ();
 #
 # Returns: reference to PHPUnit object
 sub new {
-  my ($class, $owner, $codeowners, $classmap, $treshold) = @_;
-  
-  my $gitlab = new Gitlab($codeowners, $owner);
-  my $composer = new Composer($classmap);
-  
-  my $self = {
-    gitlab => $gitlab,
-    composer => $composer,
-    owner => $owner,
-    treshold => $treshold || 0.0,
-  };
-  
-  bless $self, $class;
-  
-  return $self;
+    my ($class, $owner, $codeowners, $classmap, $threshold) = @_;
+
+    my $gitlab = new Gitlab($codeowners, $owner);
+    my $composer = new Composer($classmap);
+
+    my $self = {
+        gitlab    => $gitlab,
+        composer  => $composer,
+        owner     => $owner,
+        threshold => $threshold || 0.0,
+    };
+
+    bless $self, $class;
+
+    return $self;
 }
 
 #------------------------------------------------------------------------------
@@ -71,23 +71,24 @@ sub new {
 #
 # Returns: int | exit code
 sub Parse {
-  my ($self) = @_;
-  
-  while (<>) {
-    chomp $_;
-    
-    # ignore lines with spaces
-    next unless $_ =~ /[^ ]/;
-    next unless $self->{composer}->Match($_, $self->{gitlab}->GetPaths());
+    my ($self) = @_;
 
-    my $statsline = <>;
-    
-    $self->CollectStats($_, $statsline);
-  }
-  
-  $self->Report();
-  
-  return($self->Summary());
+    while (<>) {
+        chomp $_;
+
+        # ignore lines with spaces
+        next unless $_ =~ /[^ ]/;
+        next unless $self->{composer}->Match($_, $self->{gitlab}->GetPaths());
+
+        # read next line for stats
+        my $stats = <>;
+
+        $self->CollectStats($_, $stats);
+    }
+
+    $self->Report();
+
+    return ($self->Summary());
 }
 
 #------------------------------------------------------------------------------
@@ -95,25 +96,25 @@ sub Parse {
 #
 # Returns: int
 sub Summary {
-  my ($self) = @_;
-  
-  my $score = (($lines{'covered'} / $lines{'total'}) * 100);
+    my ($self) = @_;
 
-  if ($self->{treshold} > $score) {
-    print "\n ! [FAILED] The minimum coverage is ";
-    printf("%.2f", ($self->{treshold} - $score));
-    print "% percentage points under the required coverage.\n !          Please increase coverage by improving your tests.\n";
-  
-    return(1);
-  }
+    my $score = (($lines{'covered'} / $lines{'total'}) * 100);
 
-  if ($self->{treshold} < $score) {
-    print "\n ! [NOTE] The minimum coverage is ";
-    printf("%.2f", ($score - $self->{treshold}));
-    print "% percentage points over the required coverage.\n !        Consider increasing the required coverage percentage.\n"
-  }
-  
-  return (0);
+    if ($self->{threshold} > $score) {
+        print "\n ! [FAILED] The minimum coverage is ";
+        printf("%.2f", ($self->{threshold} - $score));
+        print "% percentage points under the required coverage.\n !          Please increase coverage by improving your tests.\n";
+
+        return (1);
+    }
+
+    if ($self->{threshold} < $score) {
+        print "\n ! [NOTE] The minimum coverage is ";
+        printf("%.2f", ($score - $self->{threshold}));
+        print "% percentage points over the required coverage.\n !        Consider increasing the required coverage percentage.\n"
+    }
+
+    return (0);
 }
 
 #------------------------------------------------------------------------------
@@ -121,34 +122,34 @@ sub Summary {
 #
 # Returns: void
 sub Report {
-  my ($self) = @_;
-  
-  my $dt = localtime->datetime =~ y/T/ /r;
-  
-  print "Code Coverage Report for $self->{owner}:\n  $dt\n\n";
-  print " Summary:\n";
-  
-  if ($classes{'total'} != 0) {
-    print "  Classes: ";
-    printf("%.2f", (($classes{'covered'} / $classes{'total'}) * 100));
-    print "% (" . $classes{'covered'} . "/" .  $classes{'total'} . ")\n";
-  }
-  
-  if ($methods{'total'} != 0) {
-    print "  Methods: ";
-    printf("%.2f", (($methods{'covered'} / $methods{'total'}) * 100));
-    print "% (" . $methods{'covered'} . "/" .  $methods{'total'} . ")\n";
-  }
-  
-  if ($lines{'total'} != 0) {
-    print "  Lines:   ";
-    printf("%.2f", (($lines{'covered'} / $lines{'total'}) * 100));
-    print "% (" . $lines{'covered'} . "/" .  $lines{'total'} . ")\n\n";
-  }
-  
-  while (my ($key, $value) = each %classreport) {
-    print "$key\n$value\n";
-  }
+    my ($self) = @_;
+
+    my $dt = localtime->datetime =~ y/T/ /r;
+
+    print "Code Coverage Report for $self->{owner}:\n  $dt\n\n";
+    print " Summary:\n";
+
+    if ($classes{'total'} != 0) {
+        print "  Classes: ";
+        printf("%.2f", (($classes{'covered'} / $classes{'total'}) * 100));
+        print "% (" . $classes{'covered'} . "/" . $classes{'total'} . ")\n";
+    }
+
+    if ($methods{'total'} != 0) {
+        print "  Methods: ";
+        printf("%.2f", (($methods{'covered'} / $methods{'total'}) * 100));
+        print "% (" . $methods{'covered'} . "/" . $methods{'total'} . ")\n";
+    }
+
+    if ($lines{'total'} != 0) {
+        print "  Lines:   ";
+        printf("%.2f", (($lines{'covered'} / $lines{'total'}) * 100));
+        print "% (" . $lines{'covered'} . "/" . $lines{'total'} . ")\n\n";
+    }
+
+    while (my ($key, $value) = each %classreport) {
+        print "$key\n$value\n";
+    }
 }
 
 #------------------------------------------------------------------------------
@@ -156,27 +157,28 @@ sub Report {
 #
 # Returns: int
 sub CollectStats {
-  my ($self, $class, $stats) = @_;
-  
-  chomp $stats;
-  # collect for output
-  $classreport{$class} = $stats;
+    my ($self, $class, $stats) = @_;
 
-  my ($methodsCovered, $methodsTotal, $linesCovered, $linesTotal) = $stats =~ /[\s]?Methods:[^\(]+\([\s]{0,}([\d]+)\/[\s]{0,}([\d]+)\)[\s]+Lines[^\(]+\([\s]{0,}([\d]+)\/[\s]{0,}([\d]+)\)/;
+    chomp $stats;
 
-  if ($methodsTotal != 0) {
-    $classes{'total'}++;
-  
-    if ($methodsTotal == $methodsCovered) {
-      $classes{'covered'}++;
+    # collect for output
+    $classreport{$class} = $stats;
+
+    my ($methodsCovered, $methodsTotal, $linesCovered, $linesTotal) = $stats =~ /[\s]?Methods:[^\(]+\([\s]{0,}([\d]+)\/[\s]{0,}([\d]+)\)[\s]+Lines[^\(]+\([\s]{0,}([\d]+)\/[\s]{0,}([\d]+)\)/;
+
+    if ($methodsTotal != 0) {
+        $classes{'total'}++;
+
+        if ($methodsTotal == $methodsCovered) {
+            $classes{'covered'}++;
+        }
     }
-  }
-  
-  $methods{'covered'} += $methodsCovered;
-  $methods{'total'} += $methodsTotal;
-  
-  $lines{'covered'} += $linesCovered;
-  $lines{'total'} += $linesTotal;
+
+    $methods{'covered'} += $methodsCovered;
+    $methods{'total'} += $methodsTotal;
+
+    $lines{'covered'} += $linesCovered;
+    $lines{'total'} += $linesTotal;
 }
 
 1;

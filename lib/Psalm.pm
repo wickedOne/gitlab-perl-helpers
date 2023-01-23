@@ -12,8 +12,6 @@ package Psalm;
 use strict;
 use warnings;
 
-use Data::Dumper;
-
 my @ingnoredDefault = qw(vendor data app var);
 
 #------------------------------------------------------------------------------
@@ -21,18 +19,18 @@ my @ingnoredDefault = qw(vendor data app var);
 #
 # Returns: reference to Psalm object
 sub new {
-  my ($class, $level, $paths, $baseline, $ignoredFiles) = @_;
-  
-  my $self = {
-    level => $level || 4,
-    ignoredFiles => $ignoredFiles || \@ingnoredDefault,
-    paths => $paths || ['src'],
-    baseline => $baseline,
-  };
-  
-  bless $self, $class;
+    my ($class, $level, $paths, $baseline, $ignoredFiles) = @_;
 
-  return $self;
+    my $self = {
+        level        => $level || 4,
+        ignoredFiles => $ignoredFiles || \@ingnoredDefault,
+        paths        => $paths || [ 'src' ],
+        baseline     => $baseline,
+    };
+
+    bless $self, $class;
+
+    return $self;
 }
 
 #------------------------------------------------------------------------------
@@ -40,9 +38,9 @@ sub new {
 #
 # Returns: psalm.xml config file as string
 sub GetConfig {
-  my $self = shift;
-  
-  my $config = "<?xml version=\"1.0\"?>
+    my $self = shift;
+
+    my $config = "<?xml version=\"1.0\"?>
 <psalm
     errorLevel=\"$self->{level}\"
     resolveFromConfigFile=\"true\"
@@ -50,11 +48,11 @@ sub GetConfig {
     xmlns=\"https://getpsalm.org/schema/config\"
     xsi:schemaLocation=\"https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd\"\n";
 
-  if (defined $self->{baseline}) {
-    $config .= "    errorBaseline=\"$self->{baseline}\"\n";
-  }
-  
-  $config .= q(    cacheDirectory="var/cache/psalm"
+    if (defined $self->{baseline}) {
+        $config .= "    errorBaseline=\"$self->{baseline}\"\n";
+    }
+
+    $config .= q(    cacheDirectory="var/cache/psalm"
   >
       <issueHandlers>
           <TooManyArguments>
@@ -67,23 +65,23 @@ sub GetConfig {
           </TooManyArguments>
       </issueHandlers>
       <projectFiles>");
-  
-  foreach my $path (@{$self->{paths}}) {
-    $config .= "\n        <directory name=\"$path\" />";
-  }
-  
-  $config .= "\n        <ignoreFiles>";
-  
-  foreach my $path (@{$self->{ignoredFiles}}) {
-    $config .= "\n            <directory name=\"/$path\" />";
-  }
-  
-  $config .= "\n        </ignoreFiles>
+
+    foreach my $path (@{$self->{paths}}) {
+        $config .= "\n        <directory name=\"$path\" />";
+    }
+
+    $config .= "\n        <ignoreFiles>";
+
+    foreach my $path (@{$self->{ignoredFiles}}) {
+        $config .= "\n            <directory name=\"/$path\" />";
+    }
+
+    $config .= "\n        </ignoreFiles>
       </projectFiles>
   </psalm>
   ";
 
-  return ($config);
+    return ($config);
 }
 
 1;

@@ -3,7 +3,7 @@ use strict;
 use warnings;
 
 use File::Basename;
-use lib dirname (__FILE__) . '/lib/';
+use lib dirname(__FILE__) . '/lib/';
 
 use PHPUnit;
 
