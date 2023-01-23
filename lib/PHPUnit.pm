@@ -11,6 +11,7 @@ package PHPUnit;
 
 use strict;
 use warnings;
+
 use Time::Piece;
 
 use File::Basename;
@@ -51,8 +52,8 @@ my %classreport = ();
 sub new {
     my ($class, $owner, $codeowners, $classmap, $threshold) = @_;
 
-    my $gitlab = new Gitlab($codeowners, $owner);
-    my $composer = new Composer($classmap);
+    my $gitlab = Gitlab->new($codeowners, $owner);
+    my $composer = Composer->new($classmap);
 
     my $self = {
         gitlab    => $gitlab,

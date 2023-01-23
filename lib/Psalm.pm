@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 # File:         Psalm.pm
 #
-# Description:  pslam related functions.
+# Description:  psalm related functions.
 #               for now only generate psalm config file
 #
 # Revisions:    2023-01-21 - created
