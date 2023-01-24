@@ -102,7 +102,7 @@ sub Summary {
     my $score = (($lines{'covered'} / $lines{'total'}) * 100);
 
     if ($self->{threshold} > $score) {
-        print "\n ! [FAILED] The minimum coverage is ";
+        print "\n ! [FAILED] Your coverage is ";
         printf("%.2f", ($self->{threshold} - $score));
         print "% percentage points under the required coverage.\n !          Please increase coverage by improving your tests.\n";
 
@@ -110,7 +110,7 @@ sub Summary {
     }
 
     if ($self->{threshold} < $score) {
-        print "\n ! [NOTE] The minimum coverage is ";
+        print "\n ! [NOTE] Your coverage is ";
         printf("%.2f", ($score - $self->{threshold}));
         print "% percentage points over the required coverage.\n !        Consider increasing the required coverage percentage.\n"
     }
