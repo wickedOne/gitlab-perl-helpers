@@ -1,12 +1,28 @@
 # gitlab-perl-helpers
+
 collection of perl helpers for implementing code owner specific gitlab ci steps
 
+## environment variables
+
+these scripts rely on a couple of environment variables.
+
+### global variables
+the following environment variables are used by all scripts
+- `DEV_TEAM`: owner as defined in the `CODEOWNERS` file
+- `EXCLUDE_PATHS` (optional): comma seperated list of paths to exclude while defined tin the `CODEOWNERS` file for owner defined in `DEV_TEAM`. defaults to empty string.
+
+### coverage2codeowner variables
+the following environment variable is used by the coverage2codeowner script
+- `MIN_COVERAGE` (optional): minimum coverage required for the job to succeed. defaults to 0.0
+
 ## coverage2codeowner
+
 filters and re-calculates phpunit's coverage text output for a specific codeowner based on the paths defined in gitlab's CODEOWNER file.
 
 on top of that a minimum coverage percentage can be defined (defaults to 0.0) which will cause your pipeline to fail if the line coverage % dives below that threshold.
 
 ### assumptions
+
 this script assumes the presence of composer at the usual location and the CODEOWNERS file in the root directory of you project.
 though both paths are configurable in the `coverage2codeowner.pl` file, for now no plans to make that configurable or accept them as input parameters.
 
@@ -14,6 +30,7 @@ though both paths are configurable in the `coverage2codeowner.pl` file, for now 
 this way the other coverage artifacts (junit & xml) can be used by for example infection (see below)
 
 ### example config
+
 > gitlab-ci.yml
 > ```yaml
 > phpunit-coverage:
@@ -39,13 +56,16 @@ this way the other coverage artifacts (junit & xml) can be used by for example i
 > ```
 
 ## codeowner2infection-filter
+
 this script collects the paths defined in your CODEOWNERS file for given codeowner and outputs them to a value which can be used as for example a filter value for php infection.
 
 ### assumptions
+
 this script assumes the presence of the CODEOWNERS file in the root directory of you project.
 though configurable in the `codeowner2infection-filter.pl` file, for now no plans to make that configurable or accept it as input parameter.
 
 ### example config
+
 > gitlab-ci-yml
 > ```yaml
 > php-infection:
