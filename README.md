@@ -22,6 +22,7 @@ this way the other coverage artifacts (junit & xml) can be used by for example i
 >       - <your code owner run conditions>
 >   variables:
 >     DEV_TEAM: '@team-awesome'
+>     EXCLUDE_PATHS: '/old,/legacy'
 >     MIN_COVERAGE: '80.00'
 >   coverage: '/^\s*Lines:\s*\d+.\d+\%/'
 >   artifacts:
@@ -55,6 +56,7 @@ though configurable in the `codeowner2infection-filter.pl` file, for now no plan
 >     - phpunit-coverage
 >   variables:
 >     DEV_TEAM: '@team-awesome'
+>     EXCLUDE_PATHS: '/old,/legacy'
 >     MIN_COVERED_MSI: '98.00'
 >     MIN_MSI: '95.00'
 >   before_script:

@@ -7,6 +7,9 @@ use lib dirname(__FILE__) . '/lib/';
 
 use Gitlab;
 
-my $gitlab = Gitlab->new('./CODEOWNERS', $ENV{'DEV_TEAM'});
+my $str = $ENV{'EXCLUDE_PATHS'} || '';
+my @excludes = split /,/, $str;
 
-print $gitlab->GetInfectionFilter();
+my $gitlab = Gitlab->new('./CODEOWNERS', $ENV{'DEV_TEAM'}, @excludes);
+
+print $gitlab->GetCommaSeparatedPathList();

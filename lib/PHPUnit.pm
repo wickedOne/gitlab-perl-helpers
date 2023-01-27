@@ -46,13 +46,14 @@ my %classreport = ();
 # Inputs:  0) string code owner
 #          1) string path to code owners file
 #          2) string path to classmap file
-#          3) float minimal coverage percentage treshold, defaults to 0.0
+#          3) float minimal coverage percentage threshold, defaults to 0.0
+#          4) array code owner paths to exclude
 #
 # Returns: reference to PHPUnit object
 sub new {
-    my ($class, $owner, $codeowners, $classmap, $threshold) = @_;
+    my ($class, $owner, $codeowners, $classmap, $threshold, @excludes) = @_;
 
-    my $gitlab = Gitlab->new($codeowners, $owner);
+    my $gitlab = Gitlab->new($codeowners, $owner, @excludes);
     my $composer = Composer->new($classmap);
 
     my $self = {

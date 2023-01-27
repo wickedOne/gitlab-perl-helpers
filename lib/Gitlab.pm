@@ -11,25 +11,42 @@ package Gitlab;
 use strict;
 use warnings;
 
+use Data::Dumper qw(Dumper);
+
 #------------------------------------------------------------------------------
 # Static properties
 # codeowners contains hash of all owners and their related paths
 my %codeowners = ();
+my %excludeHash = ();
 
 #------------------------------------------------------------------------------
 # Construct new class
 #
+# Inputs:  1) string path to code owners file
+#          2) string current code owner
+#          3) array paths to exclude
+#
 # Returns: reference to Gitlab object
 sub new {
-    my ($class, $path, $owner) = @_;
+    my ($class, $path, $owner, @excludes) = @_;
 
     open(FH, $path) or die "unable to open codeowners file, initialization failed $!";
 
+    # build excludes hash for quick lookup
+    foreach my $item (@excludes) {
+        $excludeHash{$item} = 1;
+    }
+
     while (<FH>) {
         chomp $_;
+
+        # skip if line does not contain @
         next unless /^.*\s\@[\w]+\/.*$/;
 
         my ($path, $owners) = split(' ', $_, 2);
+
+        # skip if path is excluded
+        next if exists $excludeHash{$path};
 
         foreach (split(' ', $owners)) {
             next unless /(\@[\w\/]{0,})$/;
@@ -68,7 +85,7 @@ sub GetPaths {
 # Get owner paths as infection filter
 #
 # Returns: comma separated string of codeowner paths
-sub GetInfectionFilter {
+sub GetCommaSeparatedPathList {
     my $self = shift;
 
     return join(",", $self->GetPaths());
