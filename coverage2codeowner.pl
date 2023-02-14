@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use File::Basename;
 use lib dirname(__FILE__) . '/lib/';

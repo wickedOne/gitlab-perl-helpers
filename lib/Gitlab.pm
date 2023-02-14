@@ -9,13 +9,12 @@
 package Gitlab;
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use Data::Dumper qw(Dumper);
 
 #------------------------------------------------------------------------------
 # Static properties
-# codeowners contains hash of all owners and their related paths
 my %codeowners = ();
 my %excludeHash = ();
 
@@ -74,7 +73,7 @@ sub new {
 #------------------------------------------------------------------------------
 # Get owner paths
 #
-# Returns: array of codeowner paths
+# Returns: array of code owner paths
 sub GetPaths {
     my $self = shift;
 
@@ -84,7 +83,7 @@ sub GetPaths {
 #------------------------------------------------------------------------------
 # Get owner paths as infection filter
 #
-# Returns: comma separated string of codeowner paths
+# Returns: comma separated string of code owner paths
 sub GetCommaSeparatedPathList {
     my $self = shift;
 

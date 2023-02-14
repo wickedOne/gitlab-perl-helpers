@@ -9,7 +9,7 @@
 package Composer;
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 use constant CLASSMAP_FILE => './vendor/composer/autoload_classmap.php';
 

@@ -10,7 +10,7 @@
 package Psalm;
 
 use strict;
-use warnings;
+use warnings FATAL => 'all';
 
 my @ingnoredDefault = qw(vendor data app var);
 
