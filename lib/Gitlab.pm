@@ -79,13 +79,13 @@ sub GetPaths {
     my $self = shift;
 
     return @{$self->{codeowners}->{$self->{owner}}};
-}GetPathsReference
+}
 
 #------------------------------------------------------------------------------
 # Get owner paths reference
 #
 # Returns: reference to array of code owner paths
-sub  {
+sub GetPathsReference {
     my $self = shift;
 
     return \@{$self->{codeowners}->{$self->{owner}}};
