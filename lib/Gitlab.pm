@@ -5,6 +5,7 @@
 #               for now only related to code owners file
 #
 # Revisions:    2023-01-20 - created
+#               2023-02-18 - added GetPathsReference to be used with psalm.ppm
 #------------------------------------------------------------------------------
 package Gitlab;
 
@@ -78,6 +79,16 @@ sub GetPaths {
     my $self = shift;
 
     return @{$self->{codeowners}->{$self->{owner}}};
+}GetPathsReference
+
+#------------------------------------------------------------------------------
+# Get owner paths reference
+#
+# Returns: reference to array of code owner paths
+sub  {
+    my $self = shift;
+
+    return \@{$self->{codeowners}->{$self->{owner}}};
 }
 
 #------------------------------------------------------------------------------

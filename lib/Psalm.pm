@@ -5,6 +5,7 @@
 #               for now only generate psalm config file
 #
 # Revisions:    2023-01-21 - created
+#               2023-02-18 - ready for general usage
 #------------------------------------------------------------------------------
 
 package Psalm;
@@ -12,20 +13,25 @@ package Psalm;
 use strict;
 use warnings FATAL => 'all';
 
-my @ingnoredDefault = qw(vendor data app var);
-
 #------------------------------------------------------------------------------
 # Construct new class
 #
+# Inputs:  0) string psalm error level
+#          1) string paths to analyse
+#          2) string path to baseline file, defaults to undef
+#          3) array ignored directories, defaults to undef
+#          4) string path to cache directory, defaults to ./psalm
+#
 # Returns: reference to Psalm object
 sub new {
-    my ($class, $level, $paths, $baseline, $ignoredFiles) = @_;
+    my ($class, $level, $paths, $baseline, $ignoredDirectories, $cacheDir) = @_;
 
     my $self = {
-        level        => $level || 4,
-        ignoredFiles => $ignoredFiles || \@ingnoredDefault,
-        paths        => $paths || [ 'src' ],
-        baseline     => $baseline,
+        level              => $level,
+        paths              => $paths,
+        ignoredDirectories => $ignoredDirectories || undef,
+        baseline           => $baseline || undef,
+        cacheDir           => $cacheDir || './psalm',
     };
 
     bless $self, $class;
@@ -36,7 +42,7 @@ sub new {
 #------------------------------------------------------------------------------
 # Get config
 #
-# Returns: psalm.xml config file as string
+# Returns: psalm.xml config file string
 sub GetConfig {
     my $self = shift;
 
@@ -52,34 +58,23 @@ sub GetConfig {
         $config .= "    errorBaseline=\"$self->{baseline}\"\n";
     }
 
-    $config .= q(    cacheDirectory="var/cache/psalm"
-  >
-      <issueHandlers>
-          <TooManyArguments>
-              <errorLevel type="suppress">
-                  <referencedFunction name="Doctrine\DBAL\Query\QueryBuilder::select" />
-                  <referencedFunction name="Doctrine\ORM\Query\Expr::andX" />
-                  <referencedFunction name="Doctrine\ORM\Query\Expr::orX" />
-                  <referencedFunction name="Doctrine\Common\Collections\ExpressionBuilder::andX" />
-              </errorLevel>
-          </TooManyArguments>
-      </issueHandlers>
-      <projectFiles>");
+    $config .= "    cacheDirectory=\"$self->{cacheDir}\"\n >\n  <projectFiles>";
 
     foreach my $path (@{$self->{paths}}) {
-        $config .= "\n        <directory name=\"$path\" />";
+        $config .= "\n    <directory name=\"$path\" />";
     }
 
-    $config .= "\n        <ignoreFiles>";
+    if (defined $self->{ignoredDirectories}) {
+        $config .= "\n    <ignoreFiles>";
 
-    foreach my $path (@{$self->{ignoredFiles}}) {
-        $config .= "\n            <directory name=\"/$path\" />";
+        foreach my $path (@{$self->{ignoredDirectories}}) {
+            $config .= "\n        <directory name=\"$path\" />";
+        }
+
+        $config .= "\n    </ignoreFiles>";
     }
 
-    $config .= "\n        </ignoreFiles>
-      </projectFiles>
-  </psalm>
-  ";
+    $config .= "\n  </projectFiles>\n</psalm>";
 
     return ($config);
 }
