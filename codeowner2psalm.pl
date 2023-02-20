@@ -1,3 +1,4 @@
+#!/usr/bin/perl -w
 use strict;
 use warnings FATAL => 'all';
 
@@ -20,7 +21,7 @@ my $cacheDir = $ENV{'PSALM_CACHE_DIR'} || undef;
 my $ignore = $ENV{'PSALM_IGNORED_DIRS'} || '';
 my @ignored = split /,/, $ignore;
 
-my $gitlab = Gitlab->new(CODEOWNERS_FILE, $owner, \@excludes);
+my $gitlab = Gitlab->new(CODEOWNERS_FILE, $owner, @excludes);
 my $psalm = Psalm->new($level, $gitlab->GetPathsReference(), $baseline, \@ignored, $cacheDir);
 
 print $psalm->GetConfig();
