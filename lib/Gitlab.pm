@@ -92,13 +92,62 @@ sub GetPathsReference {
 }
 
 #------------------------------------------------------------------------------
-# Get owner paths as infection filter
+# Get owner paths as comma separated path list
 #
 # Returns: comma separated string of code owner paths
 sub GetCommaSeparatedPathList {
     my $self = shift;
 
     return join(",", $self->GetPaths());
+}
+
+#------------------------------------------------------------------------------
+# Get comma separated path list from input array intersected by owner paths
+#
+# Inputs:  1) array paths to intersect with code owner paths
+#
+# Returns: comma separated string of paths
+sub IntersectToCommaSeparatedPathList {
+    my ($self, @paths) = @_;
+
+    return join(",", $self->Intersect(@paths));
+}
+
+#------------------------------------------------------------------------------
+# Intersect input array with owner paths
+#
+# Inputs:  1) array paths to intersect with code owner paths
+#
+# Returns: array intersection result
+sub Intersect {
+    my ($self, @paths) = @_;
+    my @diff = ();
+
+    foreach my $path (@paths) {
+        chomp $path;
+
+        next unless $self->Match($path);
+
+        push(@diff, $path);
+    }
+
+    return @diff;
+}
+
+#------------------------------------------------------------------------------
+# Match input path with owner paths
+#
+# Inputs:  1) string path to match
+#
+# Returns: int
+sub Match {
+    my ($self, $path) = @_;
+
+    foreach my $owner ($self->GetPaths()) {
+        return 1 if $path =~ $owner;
+    }
+
+    return 0;
 }
 
 1;

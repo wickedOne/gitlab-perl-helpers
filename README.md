@@ -99,7 +99,37 @@ though configurable in the `codeowner2infection-filter.pl` file, for now no plan
 >     - composer dump-autoload --optimize --ignore-platform-reqs
 >     - export INFECTION_FILTER=$(codeowner2infection-filter.pl)
 >   script:
->     - ./vendor/bin/infection -j$(nproc) --filter=$INFECTION_FILTER --min-msi=$MIN_MSI --min-covered-msi=$MIN_COVERED_MSI --coverage=coverage=./ --skip-initial-tests
+>     - ./vendor/bin/infection -j$(nproc) --filter=$INFECTION_FILTER --min-msi=$MIN_MSI --min-covered-msi=$MIN_COVERED_MSI --coverage=./coverage --skip-initial-tests
+> ```
+
+## stdin2codeowner-filter.pl
+
+this script accepts a list of files and intersects them with the paths defined in your CODEOWNERS file for given codeowner. the intersected result is printed as comma separated list which can be used as a filter value for, for example, php infection.
+
+### assumptions
+
+this script assumes the presence of the CODEOWNERS file in the root directory of you project.
+though configurable in the `stdin2codeowner-filter.pl` file, for now no plans to make that configurable or accept it as input parameter.
+
+> gitlab-ci-yml
+> ```yaml
+> php-infection:
+>   stage: test
+>   rules:
+>     - <your code owner run conditions>
+>   needs:
+>     - phpunit-coverage
+>   variables:
+>     DEV_TEAM: '@team-awesome'
+>     EXCLUDE_PATHS: '/old,/legacy'
+>     MIN_COVERED_MSI: '98.00'
+>     MIN_MSI: '95.00'
+>   before_script:
+>     - composer dump-autoload --optimize --ignore-platform-reqs
+>     - git fetch --depth=1 origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+>     - export INFECTION_FILTER=$(git diff origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME --diff-filter=AM --name-only | .stdin2codeowner-filter.pl)
+>   script:
+>     - ./vendor/bin/infection -j$(nproc) --filter=$INFECTION_FILTER --min-msi=$MIN_MSI --min-covered-msi=$MIN_COVERED_MSI --coverage=./coverage --skip-initial-tests
 > ```
 
 ## codeowner2psalm
