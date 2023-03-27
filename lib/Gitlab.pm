@@ -12,8 +12,6 @@ package Gitlab;
 use strict;
 use warnings FATAL => 'all';
 
-use Data::Dumper qw(Dumper);
-
 #------------------------------------------------------------------------------
 # Static properties
 my %codeowners = ();
