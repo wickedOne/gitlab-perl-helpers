@@ -24,7 +24,7 @@ use warnings FATAL => 'all';
 #
 # Returns: reference to Psalm object
 sub new {
-    my ($class, $level, $paths, $baseline, $ignoredDirectories, $cacheDir) = @_;
+    my ($class, $level, $paths, $baseline, $ignoredDirectories, $cacheDir, $plugins) = @_;
 
     my $self = {
         level              => $level,
@@ -32,6 +32,7 @@ sub new {
         ignoredDirectories => $ignoredDirectories || undef,
         baseline           => $baseline || undef,
         cacheDir           => $cacheDir || './psalm',
+        plugins            => $plugins || undef,
     };
 
     bless $self, $class;
@@ -64,7 +65,7 @@ sub GetConfig {
         $config .= "\n    <directory name=\"$path\" />";
     }
 
-    if (defined $self->{ignoredDirectories}) {
+    if (@{$self->{ignoredDirectories}}) {
         $config .= "\n    <ignoreFiles>";
 
         foreach my $path (@{$self->{ignoredDirectories}}) {
@@ -74,7 +75,19 @@ sub GetConfig {
         $config .= "\n    </ignoreFiles>";
     }
 
-    $config .= "\n  </projectFiles>\n</psalm>";
+    $config .= "\n  </projectFiles>";
+
+    if (@{$self->{plugins}}) {
+        $config .= "\n  <plugins>";
+
+        foreach my $plugin (@{$self->{plugins}}) {
+            $config .= "\n      <pluginClass class=\"$plugin\" />";
+        }
+
+        $config .= "\n  </plugins>";
+    }
+
+    $config .= "\n</psalm>";
 
     return ($config);
 }

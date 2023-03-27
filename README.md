@@ -111,6 +111,8 @@ this script accepts a list of files and intersects them with the paths defined i
 this script assumes the presence of the CODEOWNERS file in the root directory of you project.
 though configurable in the `stdin2codeowner-filter.pl` file, for now no plans to make that configurable or accept it as input parameter.
 
+### example config
+
 > gitlab-ci-yml
 > ```yaml
 > php-infection:
@@ -130,6 +132,32 @@ though configurable in the `stdin2codeowner-filter.pl` file, for now no plans to
 >     - export INFECTION_FILTER=$(git diff origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME --diff-filter=AM --name-only | .stdin2codeowner-filter.pl)
 >   script:
 >     - ./vendor/bin/infection -j$(nproc) --filter=$INFECTION_FILTER --min-msi=$MIN_MSI --min-covered-msi=$MIN_COVERED_MSI --coverage=./coverage --skip-initial-tests
+> ```
+ 
+## infection2escapee-warning
+
+this script parses infection output and returns an alternative exit code (8) when the (covered) MSI is within the given boundaries, but does contain undetected mutants.
+combined with gitlab's [allow_failure:exit_codes](https://docs.gitlab.com/ee/ci/yaml/#allow_failureexit_codes) feature you can configure your ci job to raise a warning while not blocking the merge request from being merged.
+
+### assumptions
+this script assumes both `MIN_MSI` and `MIN_COVERED_MSI` are configured.
+
+### example config
+
+> gitlab-ci-yml
+> ```yaml
+> php-infection:
+>   stage: test
+>   rules:
+>     - <your code owner run conditions>
+>   variables:
+>     MIN_COVERED_MSI: '98.00'
+>     MIN_MSI: '95.00'
+>   allow_failure:
+>     exit_codes: 8
+>   script:
+>     - set +e
+>     - ./vendor/bin/infection | infection2escapee-warning.pl
 > ```
 
 ## codeowner2psalm

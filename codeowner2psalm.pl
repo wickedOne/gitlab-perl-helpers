@@ -20,8 +20,10 @@ my $baseline = $ENV{'PSALM_BASELINE'} || undef;
 my $cacheDir = $ENV{'PSALM_CACHE_DIR'} || undef;
 my $ignore = $ENV{'PSALM_IGNORED_DIRS'} || '';
 my @ignored = split /,/, $ignore;
+my $plugin = $ENV{'PSALM_PLUGINS'} || '';
+my @plugins = split /,/, $plugin;
 
 my $gitlab = Gitlab->new(CODEOWNERS_FILE, $owner, @excludes);
-my $psalm = Psalm->new($level, $gitlab->GetPathsReference(), $baseline, \@ignored, $cacheDir);
+my $psalm = Psalm->new($level, $gitlab->GetPathsReference(), $baseline, \@ignored, $cacheDir, \@plugins);
 
 print $psalm->GetConfig();
