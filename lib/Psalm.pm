@@ -6,6 +6,9 @@
 #
 # Revisions:    2023-01-21 - created
 #               2023-02-18 - ready for general usage
+#               2023-07-05 - added baseline check config option
+#               2023-08-30 - added config handler clone method
+#               2023-09-03 - build config using lib xml
 #------------------------------------------------------------------------------
 
 package Psalm;
@@ -13,26 +16,33 @@ package Psalm;
 use strict;
 use warnings FATAL => 'all';
 
+use XML::LibXML;
+use XMLHelper;
+
 #------------------------------------------------------------------------------
 # Construct new class
 #
 # Inputs:  0) string psalm error level
 #          1) string paths to analyse
 #          2) string path to baseline file, defaults to undef
-#          3) array ignored directories, defaults to undef
-#          4) string path to cache directory, defaults to ./psalm
+#          3) string true|false used for setting the findUnusedBaselineEntry flag, defaults to true
+#          4) array ignored directories
+#          5) string path to cache directory, defaults to ./psalm
+#          6) array used plugins
 #
 # Returns: reference to Psalm object
 sub new {
-    my ($class, $level, $paths, $baseline, $ignoredDirectories, $cacheDir, $plugins) = @_;
+    my ($class, $level, $paths, $baseline, $baselineCheck, $ignoredDirectories, $cacheDir, $plugins) = @_;
 
     my $self = {
         level              => $level,
         paths              => $paths,
         ignoredDirectories => $ignoredDirectories || undef,
         baseline           => $baseline || undef,
+        baselineCheck      => $baselineCheck || 'true',
         cacheDir           => $cacheDir || './psalm',
         plugins            => $plugins || undef,
+        generator          => XMLHelper->new(),
     };
 
     bless $self, $class;
@@ -47,49 +57,76 @@ sub new {
 sub GetConfig {
     my $self = shift;
 
-    my $config = "<?xml version=\"1.0\"?>
-<psalm
-    errorLevel=\"$self->{level}\"
-    resolveFromConfigFile=\"true\"
-    xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"
-    xmlns=\"https://getpsalm.org/schema/config\"
-    xsi:schemaLocation=\"https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd\"\n";
+    my $psalm = $self->{generator}->BuildElement('psalm', undef, undef, (
+        'resolveFromConfigFile'   => 'true',
+        'xmlns:xsi'               => 'http://www.w3.org/2001/XMLSchema-instance',
+        'xsi:schemaLocation'      => 'https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd',
+        'errorLevel'              => $self->{level},
+        'cacheDirectory'          => $self->{cacheDir},
+        'errorBaseline'           => $self->{baseline},
+        'findUnusedBaselineEntry' => $self->{baselineCheck},
+    ));
 
-    if (defined $self->{baseline}) {
-        $config .= "    errorBaseline=\"$self->{baseline}\"\n";
-    }
+    $psalm->setNamespace('https://getpsalm.org/schema/config');
 
-    $config .= "    cacheDirectory=\"$self->{cacheDir}\"\n >\n  <projectFiles>";
+    my $projectFiles = $self->{generator}->BuildElement('projectFiles', undef, $psalm);
 
     foreach my $path (@{$self->{paths}}) {
-        $config .= "\n    <directory name=\"$path\" />";
+        $self->{generator}->BuildElement('directory', undef, $projectFiles, (
+            'name' => $path,
+        ));
     }
 
     if (@{$self->{ignoredDirectories}}) {
-        $config .= "\n    <ignoreFiles>";
+        my $ignoreFiles = $self->{generator}->BuildElement('ignoreFiles', undef, $psalm);
 
         foreach my $path (@{$self->{ignoredDirectories}}) {
-            $config .= "\n        <directory name=\"$path\" />";
+            $self->{generator}->BuildElement('directory', undef, $ignoreFiles, (
+                'name' => $path,
+            ));
         }
-
-        $config .= "\n    </ignoreFiles>";
     }
-
-    $config .= "\n  </projectFiles>";
 
     if (@{$self->{plugins}}) {
-        $config .= "\n  <plugins>";
+        my $plugins = $self->{generator}->BuildElement('plugins', undef, $psalm);
 
         foreach my $plugin (@{$self->{plugins}}) {
-            $config .= "\n      <pluginClass class=\"$plugin\" />";
+            $self->{generator}->BuildElement('pluginClass', undef, $plugins, (
+                'class' => $plugin,
+            ));
         }
-
-        $config .= "\n  </plugins>";
     }
 
-    $config .= "\n</psalm>";
+    my $dom = $self->{generator}->GetDom();
+    $dom->setDocumentElement($psalm);
 
-    return ($config);
+    return ($dom->toString(1));
+}
+
+#------------------------------------------------------------------------------
+# Get Config With Issue Handlers
+# injects issue handlers from given psalm config file
+#
+# Returns: psalm.xml config file string
+sub GetConfigWithIssueHandlers {
+    my ($self, $path, $blacklist) = @_;
+
+    my $dom = XML::LibXML->load_xml(location => $path);
+    my $config = XML::LibXML->load_xml(string => $self->GetConfig());
+
+    my ($handlers) = $dom->findnodes('//*[local-name()="issueHandlers"]');
+
+    foreach my $exclude ($blacklist) {
+        my ($remove) = $handlers->findnodes("//*[local-name()=\"${exclude}\"]");
+
+        if (defined $remove) {
+            $handlers->removeChild($remove);
+        }
+    }
+
+    $config->documentElement->appendChild($handlers);
+
+    return ($config->toString());
 }
 
 1;
