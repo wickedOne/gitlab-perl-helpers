@@ -12,7 +12,7 @@ use constant CODEOWNERS_FILE => './CODEOWNERS';
 
 my $owner  = $ENV{'DEV_TEAM'} or die "please define owner in DEV_TEAM env var";
 
-my $coverage = $ENV{'MIN_COVERAGE'} || 0.0;
+my $coverage = $ENV{'MIN_COVERAGE'} || 0.1;
 
 my $paths = $ENV{'EXCLUDE_PATHS'} || '';
 my @excludes = split /,/, $paths;
