@@ -11,20 +11,20 @@ use Psalm;
 use constant CODEOWNERS_FILE => './CODEOWNERS';
 use constant PSALM_CONFIG => './psalm.xml';
 
-my $owner  = '@teams/ovis';
+my $owner  = $ENV{'DEV_TEAM'} or die "please define owner in DEV_TEAM env var";
 
 my $exclude = $ENV{'EXCLUDE_PATHS'} || '';
 my @excludes = split /,/, $exclude;
 
 my $level = $ENV{'PSALM_LEVEL'} || 4;
-my $baseline = $ENV{'PSALM_BASELINE'} || 'my/baseline.xml';
-my $baselineCheck = $ENV{'PSALM_BASELINE_CHECK'} || 1;
+my $baseline = $ENV{'PSALM_BASELINE'} || undef;
+my $baselineCheck = $ENV{'PSALM_BASELINE_CHECK'} || undef;
 my $cacheDir = $ENV{'PSALM_CACHE_DIR'} || undef;
-my $ignore = $ENV{'PSALM_IGNORED_DIRS'} || 'my/ignored/,dirs/';
+my $ignore = $ENV{'PSALM_IGNORED_DIRS'} || '';
 my @ignored = split /,/, $ignore;
-my $plugin = $ENV{'PSALM_PLUGINS'} || 'my/psalm,/plugins';
+my $plugin = $ENV{'PSALM_PLUGINS'} || '';
 my @plugins = split /,/, $plugin;
-my $clone = 0;
+my $clone = defined($ENV{'PSALM_CLONE_HANDLERS'}) ? $ENV{'PSALM_CLONE_HANDLERS'} : 1;
 
 my $gitlab = Gitlab->new(CODEOWNERS_FILE, $owner, @excludes);
 my $psalm = Psalm->new($level, $gitlab->GetPathsReference(), $baseline, $baselineCheck, \@ignored, $cacheDir, \@plugins);
