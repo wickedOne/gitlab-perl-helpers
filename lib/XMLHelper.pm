@@ -43,9 +43,9 @@ sub BuildElement {
 
   my $element = $self->{dom}->createElement($name);
 
-  while (my ($attr, $value) = each %attributes) {
-    if (defined $value) {
-        $element->{$attr} = $value;
+  while (my ($attr, $attrValue) = each %attributes) {
+    if (defined $attrValue) {
+        $element->{$attr} = $attrValue;
     }
   }
 
