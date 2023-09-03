@@ -47,7 +47,7 @@ sub new {
         next if exists $excludeHash{$path};
 
         foreach (split(' ', $owners)) {
-            next unless /(\@[\w\/]{0,})$/;
+            next unless /(\@[\w\-\/]{0,})$/;
 
             if (not exists $codeowners{$1}) {
                 $codeowners{$1} = [];

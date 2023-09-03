@@ -9,21 +9,31 @@ use Gitlab;
 use Psalm;
 
 use constant CODEOWNERS_FILE => './CODEOWNERS';
+use constant PSALM_CONFIG => './psalm.xml';
 
-my $owner  = $ENV{'DEV_TEAM'} or die "please define owner in DEV_TEAM env var";
+my $owner  = '@teams/ovis';
 
 my $exclude = $ENV{'EXCLUDE_PATHS'} || '';
 my @excludes = split /,/, $exclude;
 
 my $level = $ENV{'PSALM_LEVEL'} || 4;
-my $baseline = $ENV{'PSALM_BASELINE'} || undef;
+my $baseline = $ENV{'PSALM_BASELINE'} || 'my/baseline.xml';
+my $baselineCheck = $ENV{'PSALM_BASELINE_CHECK'} || 1;
 my $cacheDir = $ENV{'PSALM_CACHE_DIR'} || undef;
-my $ignore = $ENV{'PSALM_IGNORED_DIRS'} || '';
+my $ignore = $ENV{'PSALM_IGNORED_DIRS'} || 'my/ignored/,dirs/';
 my @ignored = split /,/, $ignore;
-my $plugin = $ENV{'PSALM_PLUGINS'} || '';
+my $plugin = $ENV{'PSALM_PLUGINS'} || 'my/psalm,/plugins';
 my @plugins = split /,/, $plugin;
+my $clone = 0;
 
 my $gitlab = Gitlab->new(CODEOWNERS_FILE, $owner, @excludes);
-my $psalm = Psalm->new($level, $gitlab->GetPathsReference(), $baseline, \@ignored, $cacheDir, \@plugins);
+my $psalm = Psalm->new($level, $gitlab->GetPathsReference(), $baseline, $baselineCheck, \@ignored, $cacheDir, \@plugins);
 
-print $psalm->GetConfig();
+if ($clone) {
+    my $excludeHandlers = $ENV{'PSALM_EXCLUDE_HANDLERS'} || '';
+    my @blacklist = split /,/, $excludeHandlers;
+
+    print $psalm->GetConfigWithIssueHandlers(PSALM_CONFIG, @blacklist);
+} else {
+    print $psalm->GetConfig();
+}
