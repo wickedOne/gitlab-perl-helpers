@@ -5,7 +5,8 @@
 #               for now only related to code owners file
 #
 # Revisions:    2023-01-20 - created
-#               2023-02-18 - added GetPathsReference to be used with psalm.ppm
+#               2023-02-18 - added GetPathsReference to be used with psalm.pm
+#               2023-12-23 - added blacklist for more specific path definition
 #------------------------------------------------------------------------------
 package Gitlab;
 
@@ -16,6 +17,7 @@ use warnings FATAL => 'all';
 # Static properties
 my %codeowners = ();
 my %excludeHash = ();
+my %blacklist = ();
 
 #------------------------------------------------------------------------------
 # Construct new class
@@ -51,9 +53,19 @@ sub new {
 
             if (not exists $codeowners{$1}) {
                 $codeowners{$1} = [];
+                $blacklist{$1} = [];
             }
 
             push(@{$codeowners{$1}}, $path);
+        }
+
+        # check whether less specific path is already defined and add it to the blacklist
+        while (my ($key, $value) = each %codeowners) {
+            foreach my $defined (values $value) {
+                if ($path =~ $defined and $path ne $defined) {
+                    push(@{$blacklist{$key}}, $path);
+                }
+            }
         }
     }
 
@@ -62,6 +74,7 @@ sub new {
     my $self = {
         owner      => $owner,
         codeowners => \%codeowners,
+        blacklist  => \%blacklist,
     };
 
     bless $self, $class;
@@ -77,6 +90,16 @@ sub GetPaths {
     my $self = shift;
 
     return @{$self->{codeowners}->{$self->{owner}}};
+}
+
+#------------------------------------------------------------------------------
+# Get blacklist paths
+#
+# Returns: array of blacklisted paths
+sub GetBlacklistPaths {
+    my $self = shift;
+
+    return @{$self->{blacklist}->{$self->{owner}}};
 }
 
 #------------------------------------------------------------------------------
@@ -112,7 +135,7 @@ sub IntersectToCommaSeparatedPathList {
 }
 
 #------------------------------------------------------------------------------
-# Intersect input array with owner paths
+# Intersect input array with owner paths, excluding blacklisted paths
 #
 # Inputs:  1) array paths to intersect with code owner paths
 #
@@ -125,6 +148,7 @@ sub Intersect {
         chomp $path;
 
         next unless $self->Match($path);
+        next if $self->MatchBlacklist($path);
 
         push(@diff, $path);
     }
@@ -142,6 +166,22 @@ sub Match {
     my ($self, $path) = @_;
 
     foreach my $owner ($self->GetPaths()) {
+        return 1 if $path =~ $owner;
+    }
+
+    return 0;
+}
+
+#------------------------------------------------------------------------------
+# Match input path with blacklisted paths
+#
+# Inputs:  1) string path to match
+#
+# Returns: int
+sub MatchBlacklist {
+    my ($self, $path) = @_;
+
+    foreach my $owner ($self->GetBlacklistPaths()) {
         return 1 if $path =~ $owner;
     }
 

@@ -81,6 +81,7 @@ sub Parse {
         # ignore lines with spaces
         next unless $_ =~ /[^ ]/;
         next unless $self->{composer}->Match($_, $self->{gitlab}->GetPaths());
+        next if $self->{composer}->Match($_, $self->{gitlab}->GetBlacklistPaths());
 
         # read next line for stats
         my $stats = <>;
