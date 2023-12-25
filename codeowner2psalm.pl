@@ -27,6 +27,10 @@ my @plugins = split /,/, $plugin;
 my $clone = defined($ENV{'PSALM_CLONE_HANDLERS'}) ? $ENV{'PSALM_CLONE_HANDLERS'} : 1;
 
 my $gitlab = Gitlab->new(CODEOWNERS_FILE, $owner, @excludes);
+
+# merge ignored dirs with blacklist
+@ignored = (@ignored, $gitlab->GetBlacklistPaths());
+
 my $psalm = Psalm->new($level, $gitlab->GetPathsReference(), $baseline, $baselineCheck, \@ignored, $cacheDir, \@plugins);
 
 if ($clone) {
