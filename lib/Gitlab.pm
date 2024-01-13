@@ -60,8 +60,8 @@ sub new {
         }
 
         # check whether less specific path is already defined and add it to the blacklist
-        while (my ($key, $value) = each %codeowners) {
-            foreach my $defined (values $value) {
+        while (my ($key, @value) = each %codeowners) {
+            foreach my $defined (values @value) {
                 if ($path =~ $defined and $path ne $defined) {
                     push(@{$blacklist{$key}}, $path);
                 }
