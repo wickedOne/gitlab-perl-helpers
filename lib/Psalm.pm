@@ -78,7 +78,7 @@ sub GetConfig {
     }
 
     if (@{$self->{ignoredDirectories}}) {
-        my $ignoreFiles = $self->{generator}->BuildElement('ignoreFiles', undef, $psalm);
+        my $ignoreFiles = $self->{generator}->BuildElement('ignoreFiles', undef, $projectFiles);
 
         foreach my $path (@{$self->{ignoredDirectories}}) {
             $self->{generator}->BuildElement('directory', undef, $ignoreFiles, (
