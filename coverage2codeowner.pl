@@ -17,6 +17,8 @@ my $coverage = $ENV{'MIN_COVERAGE'} || 0.1;
 my $paths = $ENV{'EXCLUDE_PATHS'} || '';
 my @excludes = split /,/, $paths;
 
-my $phpunit = PHPUnit->new($owner, CODEOWNERS_FILE, CLASSMAP_FILE, $coverage, @excludes);
+my $baseline = $ENV{'PHPUNIT_BASELINE'} || undef;
+
+my $phpunit = PHPUnit->new($owner, CODEOWNERS_FILE, CLASSMAP_FILE, $coverage, \@excludes, $baseline);
 
 exit $phpunit->Parse();
