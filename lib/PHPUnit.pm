@@ -1,11 +1,14 @@
 #------------------------------------------------------------------------------
 # File:         PHPUnit.pm
 #
-# Description:  Parses PHPUnit coverage output and filters it for given 
+# Description:  Parses PHPUnit coverage output and filters it for given
 #               code owner. Provides option to fail if coverage is below
-#               rquired threshold
+#               required threshold
 #
 # Revisions:    2023-01-21 - created
+#               2024-01-23 - added baseline option to ignore certain paths / files
+#                            within owner's code-space.
+#                            sort stats output for ease of lookup
 #------------------------------------------------------------------------------
 package PHPUnit;
 
@@ -48,12 +51,13 @@ my %classreport = ();
 #          2) string path to classmap file
 #          3) float minimal coverage percentage threshold, defaults to 0.0
 #          4) array code owner paths to exclude
+#          5) string path to baseline file, defaults to undef
 #
 # Returns: reference to PHPUnit object
 sub new {
-    my ($class, $owner, $codeowners, $classmap, $threshold, @excludes) = @_;
+    my ($class, $owner, $codeowners, $classmap, $threshold, $excludes, $baseline) = @_;
 
-    my $gitlab = Gitlab->new($codeowners, $owner, @excludes);
+    my $gitlab = Gitlab->new($codeowners, $owner, @{$excludes});
     my $composer = Composer->new($classmap);
 
     my $self = {
@@ -61,9 +65,23 @@ sub new {
         composer  => $composer,
         owner     => $owner,
         threshold => $threshold || 0.0,
+        baseline  => [],
     };
 
     bless $self, $class;
+
+    if  (defined $baseline) {
+        open(FH, $baseline) or die "unable to open phpunit baseline file ${baseline} $!";
+        my @lines = ();
+
+        while (<FH>) {
+            chomp $_;
+            push(@lines, $_);
+        }
+        close(FH);
+
+        $self->{baseline} = \@lines;
+    }
 
     return $self;
 }
@@ -79,8 +97,9 @@ sub Parse {
         chomp $_;
 
         # ignore lines with spaces
-        next unless $_ =~ /[^ ]/;
+        next unless $_ =~ /^[^ ]+$/;
         next unless $self->{composer}->Match($_, $self->{gitlab}->GetPaths());
+        next if $self->{composer}->Match($_, @{$self->{baseline}});
         next if $self->{composer}->Match($_, $self->{gitlab}->GetBlacklistPaths());
 
         # read next line for stats
@@ -150,8 +169,8 @@ sub Report {
         print "% (" . $lines{'covered'} . "/" . $lines{'total'} . ")\n\n";
     }
 
-    while (my ($key, $value) = each %classreport) {
-        print "$key\n$value\n";
+    foreach my $stats (sort keys %classreport) {
+        printf "%s\n%s\n", $stats , $classreport{$stats};
     }
 }
 

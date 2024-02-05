@@ -14,6 +14,7 @@ the following environment variables are used by all scripts
 
 the following environment variable is used by the coverage2codeowner script
 - `MIN_COVERAGE` (optional): minimum coverage required for the job to succeed. defaults to 0.1
+- `PHPUNIT_BASELINE` (optional): filepath of file containing paths to files and / or directories which are within the defined code space, but should be ignored while calculating coverage statistics.
 
 ### assumptions
 
@@ -32,9 +33,10 @@ this way the other coverage artifacts (junit & xml) can be used by for example i
 >    needs:
 >      - composer-install
 >    variables:
->      MIN_COVERAGE: '85.00'
 >      DEV_TEAM: '@team-awesome'
 >      EXCLUDE_PATHS: 'legacy/'
+>      MIN_COVERAGE: '85.00'
+>      PHPUNIT_BASELINE: './baselines/phpunit.txt'
 >    artifacts:
 >      expire_in: 1 hour
 >      when: always
