@@ -1,12 +1,13 @@
 #------------------------------------------------------------------------------
-# File:         PHPStan.pm
+# File:         GPH::PHPStan.pm
 #
-# Description:  PHPStan related functions.
+# Description:  GPH::PHPStan related functions.
 #
 # Revisions:    2023-07-25 - created
+#               2024-02-10 - namespaced module, bugfixes and unit tests
 #------------------------------------------------------------------------------
 
-package PHPStan;
+package GPH::PHPStan;
 
 use strict;
 use warnings FATAL => 'all';
@@ -23,7 +24,7 @@ use warnings FATAL => 'all';
 #          6) array includes
 #          6) int threads, defaults to 4
 #
-# Returns: reference to PHPStan object
+# Returns: reference to GPH::PHPStan object
 sub new {
     my ($class, $level, $paths, $baseline, $ignoredDirectories, $cacheDir, $includes, $threads) = @_;
 
@@ -46,7 +47,7 @@ sub new {
 # Get config
 #
 # Returns: phpstan neon config file string
-sub GetConfig {
+sub getConfig {
     my $self = shift;
 
     my $config = "includes:";

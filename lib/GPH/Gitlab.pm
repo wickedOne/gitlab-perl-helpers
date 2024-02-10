@@ -7,17 +7,12 @@
 # Revisions:    2023-01-20 - created
 #               2023-02-18 - added GetPathsReference to be used with psalm.pm
 #               2023-12-23 - added blacklist for more specific path definition
+#               2024-02-10 - namespaced module, bugfixes and unit tests
 #------------------------------------------------------------------------------
-package Gitlab;
+package GPH::Gitlab;
 
 use strict;
 use warnings FATAL => 'all';
-
-#------------------------------------------------------------------------------
-# Static properties
-my %codeowners = ();
-my %excludeHash = ();
-my %blacklist = ();
 
 #------------------------------------------------------------------------------
 # Construct new class
@@ -29,24 +24,25 @@ my %blacklist = ();
 # Returns: reference to Gitlab object
 sub new {
     my ($class, $path, $owner, @excludes) = @_;
+    my (%codeowners, %excludeHash, %blacklist);
 
-    open(FH, $path) or die "unable to open codeowners file, initialization failed $!";
+    open(my $fh, $path) or die "unable to open codeowners file, initialization failed $!";
 
     # build excludes hash for quick lookup
     foreach my $item (@excludes) {
         $excludeHash{$item} = 1;
     }
 
-    while (<FH>) {
+    while (<$fh>) {
         chomp $_;
 
         # skip if line does not contain @
         next unless /^.*\s\@[\w]+\/.*$/;
 
-        my ($path, $owners) = split(' ', $_, 2);
+        my ($class_path, $owners) = split(' ', $_, 2);
 
         # skip if path is excluded
-        next if exists $excludeHash{$path};
+        next if exists $excludeHash{$class_path};
 
         foreach (split(' ', $owners)) {
             next unless /(\@[\w\-\/]{0,})$/;
@@ -56,20 +52,20 @@ sub new {
                 $blacklist{$1} = [];
             }
 
-            push(@{$codeowners{$1}}, $path);
+            push(@{$codeowners{$1}}, $class_path);
         }
 
         # check whether less specific path is already defined and add it to the blacklist
-        while (my ($key, @value) = each %codeowners) {
-            foreach my $defined (values @value) {
-                if ($path =~ $defined and $path ne $defined) {
-                    push(@{$blacklist{$key}}, $path);
+        foreach my $key (keys %codeowners) {
+            foreach my $defined (@{$codeowners{$key}}) {
+                if ($class_path =~ $defined and $class_path ne $defined) {
+                    push(@{$blacklist{$key}}, $class_path);
                 }
             }
         }
     }
 
-    close(FH);
+    close($fh);
 
     my $self = {
         owner      => $owner,
@@ -86,40 +82,40 @@ sub new {
 # Get owner paths
 #
 # Returns: array of code owner paths
-sub GetPaths {
+sub getPaths {
     my $self = shift;
 
-    return @{$self->{codeowners}->{$self->{owner}}};
+    return $self->{codeowners}->{$self->{owner}} || [];
 }
 
 #------------------------------------------------------------------------------
 # Get blacklist paths
 #
 # Returns: array of blacklisted paths
-sub GetBlacklistPaths {
+sub getBlacklistPaths {
     my $self = shift;
 
-    return @{$self->{blacklist}->{$self->{owner}}};
+    return $self->{blacklist}->{$self->{owner}} || [];
 }
 
 #------------------------------------------------------------------------------
 # Get owner paths reference
 #
 # Returns: reference to array of code owner paths
-sub GetPathsReference {
+sub getPathsReference {
     my $self = shift;
 
-    return \@{$self->{codeowners}->{$self->{owner}}};
+    return \$self->{codeowners}->{$self->{owner}};
 }
 
 #------------------------------------------------------------------------------
 # Get owner paths as comma separated path list
 #
 # Returns: comma separated string of code owner paths
-sub GetCommaSeparatedPathList {
+sub getCommaSeparatedPathList {
     my $self = shift;
 
-    return join(",", $self->GetPaths());
+    return join(",", @{$self->getPaths()});
 }
 
 #------------------------------------------------------------------------------
@@ -128,10 +124,10 @@ sub GetCommaSeparatedPathList {
 # Inputs:  1) array paths to intersect with code owner paths
 #
 # Returns: comma separated string of paths
-sub IntersectToCommaSeparatedPathList {
+sub intersectCommaSeparatedPathList {
     my ($self, @paths) = @_;
 
-    return join(",", $self->Intersect(@paths));
+    return join(",", $self->intersect(@paths));
 }
 
 #------------------------------------------------------------------------------
@@ -140,15 +136,15 @@ sub IntersectToCommaSeparatedPathList {
 # Inputs:  1) array paths to intersect with code owner paths
 #
 # Returns: array intersection result
-sub Intersect {
+sub intersect {
     my ($self, @paths) = @_;
-    my @diff = ();
+    my @diff;
 
     foreach my $path (@paths) {
         chomp $path;
 
-        next unless $self->Match($path);
-        next if $self->MatchBlacklist($path);
+        next unless $self->match($path);
+        next if $self->matchBlacklist($path);
 
         push(@diff, $path);
     }
@@ -162,10 +158,10 @@ sub Intersect {
 # Inputs:  1) string path to match
 #
 # Returns: int
-sub Match {
+sub match {
     my ($self, $path) = @_;
 
-    foreach my $owner ($self->GetPaths()) {
+    foreach my $owner (@{$self->getPaths()}) {
         return 1 if $path =~ $owner;
     }
 
@@ -178,10 +174,10 @@ sub Match {
 # Inputs:  1) string path to match
 #
 # Returns: int
-sub MatchBlacklist {
+sub matchBlacklist {
     my ($self, $path) = @_;
 
-    foreach my $owner ($self->GetBlacklistPaths()) {
+    foreach my $owner (@{$self->getBlacklistPaths()}) {
         return 1 if $path =~ $owner;
     }
 

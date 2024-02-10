@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/wickedOne/gitlab-perl-helpers/graph/badge.svg?token=J4SE1MBNOX)](https://codecov.io/gh/wickedOne/gitlab-perl-helpers)
+
 # gitlab-perl-helpers
 
 collection of perl helpers for implementing code owner specific gitlab ci steps.
