@@ -1,23 +1,24 @@
 #------------------------------------------------------------------------------
-# File:         Infection.pm
+# File:         GPH::Infection.pm
 #
 # Description:  infection related functions.
 #
 # Revisions:    2023-03-27 - created
+#               2024-02-10 - namespaced module, bugfixes and unit tests
 #------------------------------------------------------------------------------
-package Infection;
+package GPH::Infection;
 
 use strict;
 use warnings FATAL => 'all';
 
 #------------------------------------------------------------------------------
-# Construct new Infection class
+# Construct new GPH::Infection class
 #
 # Inputs:  0) string minimum msi
 #          1) string minimum covered msi
 #          2) int exit code for escapees
 #
-# Returns: reference to Infection object
+# Returns: reference to GPH::Infection object
 sub new {
     my ($class, $msi, $covered, $code) = @_;
 
@@ -36,13 +37,13 @@ sub new {
 # Parse infection output and return appropriate exit code
 #
 # Returns: int
-sub Parse {
+sub parse {
     my ($self) = @_;
     my $escapees = 0;
     my $msi = 0;
     my $covered = 0;
 
-    while (<>) {
+    while (<STDIN>) {
         if ($_ =~ '([\d]+) covered mutants were not detected') {
             $escapees = $1;
         }

@@ -1,17 +1,16 @@
 #------------------------------------------------------------------------------
-# File:         Composer.pm
+# File:         GPH::Composer.pm
 #
 # Description:  composer related functions.
 #               for now only related to the composer classmap file
 #
 # Revisions:    2023-01-20 - created
+#               2024-02-10 - namespaced module, bugfixes and unit tests
 #------------------------------------------------------------------------------
-package Composer;
+package GPH::Composer;
 
 use strict;
 use warnings FATAL => 'all';
-
-use constant CLASSMAP_FILE => './vendor/composer/autoload_classmap.php';
 
 #------------------------------------------------------------------------------
 # Static properties
@@ -21,14 +20,14 @@ my %classmap = ();
 #------------------------------------------------------------------------------
 # Construct new class
 #
-# Returns: reference to Composer object
+# Returns: reference to GPH::Composer object
 sub new {
     my ($class, $path) = @_;
     my $self = {};
 
     bless $self, $class;
 
-    $self->{classmap} = $self->ParseClassMap($path);
+    $self->{classmap} = $self->parseClassMap($path);
 
     return $self;
 }
@@ -37,7 +36,7 @@ sub new {
 # Get classmap
 #
 # Returns: reference to classmap hash
-sub GetClassMap {
+sub getClassMap {
     my $self = shift;
 
     return \$self->{classmap};
@@ -48,7 +47,7 @@ sub GetClassMap {
 # check whether class name lives in code owners paths
 #
 # Returns: bool
-sub Match {
+sub match {
     my ($self, $class, @paths) = @_;
 
     if (not defined $self->{classmap}->{$class}) {
@@ -66,13 +65,12 @@ sub Match {
 # Parse composer classmap with relevant paths (vendor dir is ignored)
 #
 # Returns: hash reference with ${classname} => $path 
-sub ParseClassMap {
+sub parseClassMap {
     my ($self, $path) = @_;
-    my %classmap = ();
 
-    open(FH, $path) or die "can't open classmap file $!";
+    open(my $fh, $path) or die "can't open classmap file $!";
 
-    while (<FH>) {
+    while (<$fh>) {
         chomp $_;
         next unless /\$baseDir\s\./;
 
@@ -80,7 +78,7 @@ sub ParseClassMap {
         $classmap{strip($class)} = strip($path);
     }
 
-    close(FH);
+    close($fh);
 
     return (\%classmap);
 }
