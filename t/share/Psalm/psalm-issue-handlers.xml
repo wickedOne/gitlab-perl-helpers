@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<psalm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://getpsalm.org/schema/config" cacheDirectory="./psalm" errorBaseline="baselines/psalm-baseline.xml" errorLevel="2" findUnusedBaselineEntry="true" resolveFromConfigFile="true" xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd">
+  <projectFiles>
+    <directory name="/src/Command"/>
+    <directory name="/src/Service"/>
+    <ignoreFiles>
+      <directory name="vendor"/>
+    </ignoreFiles>
+  </projectFiles>
+  <plugins>
+    <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>
+  </plugins>
+<issueHandlers>
+        
+        <TooManyArguments>
+            <errorLevel type="suppress">
+                <referencedFunction name="Doctrine\Common\Collections\ExpressionBuilder::andX"/>
+                <referencedFunction name="Doctrine\Common\Collections\ExpressionBuilder::orX"/>
+            </errorLevel>
+        </TooManyArguments>
+        <PluginIssue name="NamingConventionViolation" errorLevel="suppress"/>
+    </issueHandlers></psalm>

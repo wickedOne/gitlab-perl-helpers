@@ -1,0 +1,14 @@
+includes:
+    - ./baselines/baseline.xml
+    - /includes/
+
+parameters:
+    level: 1
+    tmpDir: tmp
+    parallel:
+        maximumNumberOfProcesses: 3
+    paths:
+        - src/Service/PhraseTagService.php
+        - src/Command/AbstractPhraseKeyCommand.php
+    excludePaths:
+        - /ignored/

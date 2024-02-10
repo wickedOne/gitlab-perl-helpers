@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# File:         Psalm.pm
+# File:         GPH::Psalm.pm
 #
 # Description:  psalm related functions.
 #               for now only generate psalm config file
@@ -9,15 +9,16 @@
 #               2023-07-05 - added baseline check config option
 #               2023-08-30 - added config handler clone method
 #               2023-09-03 - build config using lib xml
+#               2024-02-10 - namespaced module, bugfixes and unit tests
 #------------------------------------------------------------------------------
 
-package Psalm;
+package GPH::Psalm;
 
 use strict;
 use warnings FATAL => 'all';
 
 use XML::LibXML;
-use XMLHelper;
+use GPH::XMLHelper;
 
 #------------------------------------------------------------------------------
 # Construct new class
@@ -30,7 +31,7 @@ use XMLHelper;
 #          5) string path to cache directory, defaults to ./psalm
 #          6) array used plugins
 #
-# Returns: reference to Psalm object
+# Returns: reference to GPH::Psalm object
 sub new {
     my ($class, $level, $paths, $baseline, $baselineCheck, $ignoredDirectories, $cacheDir, $plugins) = @_;
 
@@ -42,7 +43,7 @@ sub new {
         baselineCheck      => $baselineCheck || 'true',
         cacheDir           => $cacheDir || './psalm',
         plugins            => $plugins || undef,
-        generator          => XMLHelper->new(),
+        generator          => GPH::XMLHelper->new(),
     };
 
     bless $self, $class;
@@ -54,10 +55,10 @@ sub new {
 # Get config
 #
 # Returns: psalm.xml config file string
-sub GetConfig {
+sub getConfig {
     my $self = shift;
 
-    my $psalm = $self->{generator}->BuildElement('psalm', undef, undef, (
+    my $psalm = $self->{generator}->buildElement('psalm', undef, undef, (
         'resolveFromConfigFile'   => 'true',
         'xmlns:xsi'               => 'http://www.w3.org/2001/XMLSchema-instance',
         'xsi:schemaLocation'      => 'https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd',
@@ -69,35 +70,35 @@ sub GetConfig {
 
     $psalm->setNamespace('https://getpsalm.org/schema/config');
 
-    my $projectFiles = $self->{generator}->BuildElement('projectFiles', undef, $psalm);
+    my $projectFiles = $self->{generator}->buildElement('projectFiles', undef, $psalm);
 
     foreach my $path (@{$self->{paths}}) {
-        $self->{generator}->BuildElement('directory', undef, $projectFiles, (
+        $self->{generator}->buildElement('directory', undef, $projectFiles, (
             'name' => $path,
         ));
     }
 
     if (@{$self->{ignoredDirectories}}) {
-        my $ignoreFiles = $self->{generator}->BuildElement('ignoreFiles', undef, $projectFiles);
+        my $ignoreFiles = $self->{generator}->buildElement('ignoreFiles', undef, $projectFiles);
 
         foreach my $path (@{$self->{ignoredDirectories}}) {
-            $self->{generator}->BuildElement('directory', undef, $ignoreFiles, (
+            $self->{generator}->buildElement('directory', undef, $ignoreFiles, (
                 'name' => $path,
             ));
         }
     }
 
     if (@{$self->{plugins}}) {
-        my $plugins = $self->{generator}->BuildElement('plugins', undef, $psalm);
+        my $plugins = $self->{generator}->buildElement('plugins', undef, $psalm);
 
         foreach my $plugin (@{$self->{plugins}}) {
-            $self->{generator}->BuildElement('pluginClass', undef, $plugins, (
+            $self->{generator}->buildElement('pluginClass', undef, $plugins, (
                 'class' => $plugin,
             ));
         }
     }
 
-    my $dom = $self->{generator}->GetDom();
+    my $dom = $self->{generator}->getDom();
     $dom->setDocumentElement($psalm);
 
     return ($dom->toString(1));
@@ -108,11 +109,11 @@ sub GetConfig {
 # injects issue handlers from given psalm config file
 #
 # Returns: psalm.xml config file string
-sub GetConfigWithIssueHandlers {
+sub getConfigWithIssueHandlers {
     my ($self, $path, $blacklist) = @_;
 
     my $dom = XML::LibXML->load_xml(location => $path);
-    my $config = XML::LibXML->load_xml(string => $self->GetConfig());
+    my $config = XML::LibXML->load_xml(string => $self->getConfig());
 
     my ($handlers) = $dom->findnodes('//*[local-name()="issueHandlers"]');
 

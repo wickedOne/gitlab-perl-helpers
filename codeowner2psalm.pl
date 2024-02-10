@@ -5,8 +5,8 @@ use warnings FATAL => 'all';
 use File::Basename;
 use lib dirname(__FILE__) . '/lib/';
 
-use Gitlab;
-use Psalm;
+use GPH::Gitlab;
+use GPH::Psalm;
 
 use constant CODEOWNERS_FILE => './CODEOWNERS';
 use constant PSALM_CONFIG => './psalm.xml';
@@ -26,18 +26,18 @@ my $plugin = $ENV{'PSALM_PLUGINS'} || '';
 my @plugins = split /,/, $plugin;
 my $clone = defined($ENV{'PSALM_CLONE_HANDLERS'}) ? $ENV{'PSALM_CLONE_HANDLERS'} : 1;
 
-my $gitlab = Gitlab->new(CODEOWNERS_FILE, $owner, @excludes);
+my $gitlab = GPH::Gitlab->new(CODEOWNERS_FILE, $owner, @excludes);
 
 # merge ignored dirs with blacklist
-@ignored = (@ignored, $gitlab->GetBlacklistPaths());
+@ignored = (@ignored, $gitlab->getBlacklistPaths());
 
-my $psalm = Psalm->new($level, $gitlab->GetPathsReference(), $baseline, $baselineCheck, \@ignored, $cacheDir, \@plugins);
+my $psalm = GPH::Psalm->new($level, $gitlab->getPathsReference(), $baseline, $baselineCheck, \@ignored, $cacheDir, \@plugins);
 
 if ($clone) {
     my $excludeHandlers = $ENV{'PSALM_EXCLUDE_HANDLERS'} || '';
     my @blacklist = split /,/, $excludeHandlers;
 
-    print $psalm->GetConfigWithIssueHandlers(PSALM_CONFIG, @blacklist);
+    print $psalm->getConfigWithIssueHandlers(PSALM_CONFIG, @blacklist);
 } else {
-    print $psalm->GetConfig();
+    print $psalm->getConfig();
 }

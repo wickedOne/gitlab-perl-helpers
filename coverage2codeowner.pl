@@ -5,7 +5,7 @@ use warnings FATAL => 'all';
 use File::Basename;
 use lib dirname(__FILE__) . '/lib/';
 
-use PHPUnit;
+use GPH::PHPUnit;
 
 use constant CLASSMAP_FILE => './vendor/composer/autoload_classmap.php';
 use constant CODEOWNERS_FILE => './CODEOWNERS';
@@ -19,6 +19,6 @@ my @excludes = split /,/, $paths;
 
 my $baseline = $ENV{'PHPUNIT_BASELINE'} || undef;
 
-my $phpunit = PHPUnit->new($owner, CODEOWNERS_FILE, CLASSMAP_FILE, $coverage, \@excludes, $baseline);
+my $phpunit = GPH::PHPUnit->new($owner, CODEOWNERS_FILE, CLASSMAP_FILE, $coverage, \@excludes, $baseline);
 
-exit $phpunit->Parse();
+exit $phpunit->parse();

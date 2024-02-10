@@ -5,8 +5,8 @@ use warnings FATAL => 'all';
 use File::Basename;
 use lib dirname(__FILE__) . '/lib/';
 
-use Gitlab;
-use PHPStan;
+use GPH::Gitlab;
+use GPH::PHPStan;
 
 use constant CODEOWNERS_FILE => './CODEOWNERS';
 
@@ -24,11 +24,11 @@ my $includes = $ENV{'PHPSTAN_INCLUDES'} || './phpstan.ci.neon';
 my @includes = split /,/, $includes;
 my $threads = $ENV{'PHPSTAN_THREADS'} || undef;
 
-my $gitlab = Gitlab->new(CODEOWNERS_FILE, $owner, @excludes);
+my $gitlab = GPH::Gitlab->new(CODEOWNERS_FILE, $owner, @excludes);
 
 # merge ignored dirs with blacklist
-@ignored = (@ignored, $gitlab->GetBlacklistPaths());
+@ignored = (@ignored, $gitlab->getBlacklistPaths());
 
-my $phpstan = PHPStan->new($level, $gitlab->GetPathsReference(), $baseline, \@ignored, $cacheDir, \@includes, $threads);
+my $phpstan = GPH::PHPStan->new($level, $gitlab->getPathsReference(), $baseline, \@ignored, $cacheDir, \@includes, $threads);
 
-print $phpstan->GetConfig();
+print $phpstan->getConfig();
