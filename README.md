@@ -1,5 +1,5 @@
+[![Coverage Status](https://coveralls.io/repos/github/wickedOne/gitlab-perl-helpers/badge.svg?branch=master)](https://coveralls.io/github/wickedOne/gitlab-perl-helpers?branch=master)
 [![codecov](https://codecov.io/gh/wickedOne/gitlab-perl-helpers/graph/badge.svg?token=J4SE1MBNOX)](https://codecov.io/gh/wickedOne/gitlab-perl-helpers)
-
 # gitlab-perl-helpers
 
 collection of perl helpers for implementing code owner specific gitlab ci steps.
