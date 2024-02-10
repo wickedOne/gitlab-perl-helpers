@@ -99,16 +99,6 @@ sub getBlacklistPaths {
 }
 
 #------------------------------------------------------------------------------
-# Get owner paths reference
-#
-# Returns: reference to array of code owner paths
-sub getPathsReference {
-    my $self = shift;
-
-    return \$self->{codeowners}->{$self->{owner}};
-}
-
-#------------------------------------------------------------------------------
 # Get owner paths as comma separated path list
 #
 # Returns: comma separated string of code owner paths
