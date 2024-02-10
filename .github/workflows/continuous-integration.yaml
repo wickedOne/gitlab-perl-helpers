@@ -39,16 +39,17 @@ jobs:
       image: perldocker/perl-tester:${{ matrix.perl-version }}
 
     steps:
-      - uses: actions/checkout@main
-        with:
-          submodules: recursive
+      - name: checkout
+        uses: "actions/checkout@v4"
+
       - name: perl version
         run: perl -V
+
       - name: install dependencies
         run: cpanm --notest --installdeps --verbose .
 
       - if: ${{ matrix.cover }}
-        run: cpanm -n Devel::Cover::Report::Coveralls
+        run: cpanm -n Devel::Cover::Report::Coveralls Module::Build Devel::Cover Devel::Cover::Report::Codecov
 
       - name: build
         run: |
@@ -58,7 +59,10 @@ jobs:
       - if: ${{ matrix.cover }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: cover -report Coveralls -test
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          cover -report Coveralls -test
+          cover -report codecov
 
       - if: ${{ matrix.cover }}
         name: Upload coverage reports to Codecov
