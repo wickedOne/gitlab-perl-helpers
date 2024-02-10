@@ -49,12 +49,10 @@ sub percentage {
     return $self->{'total'} != 0 ? (($self->{'covered'} / $self->{'total'}) * 100) : 0;
 };
 
-------------------------------------------------------------------------------
-# Format statistics as string
+#------------------------------------------------------------------------------
+# Calculate percentage for stat
 #
-# Inputs:  0) string name the stat represents
-#
-# Returns: string
+# Returns: float
 sub coverage {
     my ($self, $name) = @_;
 

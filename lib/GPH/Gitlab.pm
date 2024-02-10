@@ -59,7 +59,7 @@ sub new {
 
         # check whether less specific path is already defined and add it to the blacklist
         foreach my $key (keys %codeowners) {
-            foreach my $defined (values $codeowners{$key}) {
+            foreach my $defined (@{$codeowners{$key}}) {
                 if ($class_path =~ $defined and $class_path ne $defined) {
                     push(@{$blacklist{$key}}, $class_path);
                 }

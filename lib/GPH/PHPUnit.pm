@@ -105,7 +105,7 @@ sub classReport {
 
     my $report = '';
 
-    foreach my $stats (sort keys $self->{classreport}) {
+    foreach my $stats (sort keys %{$self->{classreport}}) {
         $report .= sprintf("%s\n%s\n", $stats, $self->{classreport}{$stats});
     }
 

@@ -28,9 +28,6 @@ jobs:
           - '5.20'
           - '5.18'
           - '5.16'
-          - '5.14'
-          - '5.12'
-          - '5.10'
 
     container:
       image: perldocker/perl-tester:${{ matrix.perl-version }}
@@ -40,6 +37,8 @@ jobs:
         with:
           submodules: recursive
       - run: perl -V
-#      - run: cpanm --notest --installdeps --verbose .
+      - run: cpanm --notest --installdeps --verbose .
+      - run: perl Makefile.PL
+      - run: make
       - run: prove -wlvmbr t
 
