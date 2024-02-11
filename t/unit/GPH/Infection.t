@@ -122,15 +122,15 @@ Metrics:
          Covered Code MSI: ${output_msi}%
 ";
 
-        open my $fh, "<", \$stdin;
-        local *STDIN = $fh;
-        open (my $LOG, '>', \$stdout);
-        select $LOG;
-
         $exception = dies {
             $warnings = warns {
+                local *ARGV;
+                open *ARGV, '<', \$stdin or die "no can do $!";
+
                 $object = $CLASS->new($msi, $covered);
                 $exit_code = $object->parse();
+
+                close *ARGV;
             };
         };
 
@@ -139,7 +139,7 @@ Metrics:
         is($exit_code, $expected_code, 'expected code returned');
 
         if ($expected_code == 3 and $escapees > 0) {
-            like($stdout, '\[warning\]', 'warning')
+            like($stdout, '\[warning\]', 'warning');
         }
     }
 };

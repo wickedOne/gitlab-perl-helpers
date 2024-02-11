@@ -21,6 +21,7 @@ WriteMakefile(
         "Test2::V0"          => 0,
         "Test2::Tools::Spec" => 0,
         "Data::Dumper"       => 0,
+        "Readonly"           => 0,
     },
     'test'             => {
         TESTS => 't/unit/GPH/*.t t/unit/GPH/*/*.t'

@@ -26,26 +26,29 @@ sub new {
     my ($class, $path, $owner, @excludes) = @_;
     my (%codeowners, %excludeHash, %blacklist);
 
-    open(my $fh, $path) or die "unable to open codeowners file, initialization failed $!";
-
     # build excludes hash for quick lookup
     foreach my $item (@excludes) {
         $excludeHash{$item} = 1;
     }
 
-    while (<$fh>) {
-        chomp $_;
+    open(my $fh, '<', $path) or die "unable to open codeowners file, initialization failed $!";
+
+    my @lines = <$fh>;
+
+    close($fh);
+
+    for my $line (@lines) {
 
         # skip if line does not contain @
-        next unless /^.*\s\@[\w]+\/.*$/;
+        next unless $line =~ /^.*\s\@[\w]+\/.*$/x;
 
-        my ($class_path, $owners) = split(' ', $_, 2);
+        my ($class_path, $owners) = split(' ', $line, 2);
 
         # skip if path is excluded
         next if exists $excludeHash{$class_path};
 
         foreach (split(' ', $owners)) {
-            next unless /(\@[\w\-\/]{0,})$/;
+            next unless /(\@[\w\-\/]{0,})$/x;
 
             if (not exists $codeowners{$1}) {
                 $codeowners{$1} = [];

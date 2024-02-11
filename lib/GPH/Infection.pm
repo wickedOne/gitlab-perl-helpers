@@ -43,7 +43,7 @@ sub parse {
     my $msi = 0;
     my $covered = 0;
 
-    while (<STDIN>) {
+    while (<>) {
         if ($_ =~ '([\d]+) covered mutants were not detected') {
             $escapees = $1;
         }

@@ -13,11 +13,6 @@ use strict;
 use warnings FATAL => 'all';
 
 #------------------------------------------------------------------------------
-# Static properties
-# classmap contains hash of all relevant classes and their paths
-my %classmap = ();
-
-#------------------------------------------------------------------------------
 # Construct new class
 #
 # Returns: reference to GPH::Composer object
@@ -67,15 +62,19 @@ sub match {
 # Returns: hash reference with ${classname} => $path 
 sub parseClassMap {
     my ($self, $path) = @_;
+    my %classmap = ();
 
-    open(my $fh, $path) or die "can't open classmap file $!";
+    open(my $fh, '<', $path) or die "can't open classmap file $!";
 
-    while (<$fh>) {
-        chomp $_;
-        next unless /\$baseDir\s\./;
+    my @lines = <$fh>;
 
-        my ($class, $path) = split / => \$baseDir \. /;
-        $classmap{strip($class)} = strip($path);
+    close($fh);
+
+    for my $line (@lines) {
+        next unless $line =~ /\$baseDir\s\./;
+
+        my ($class, $code_path) = split(/ => \$baseDir \. /, $line);
+        $classmap{strip($class)} = strip($code_path);
     }
 
     close($fh);

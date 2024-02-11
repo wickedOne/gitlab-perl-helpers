@@ -1,17 +1,18 @@
 #!/usr/bin/perl
 package t::unit::GPH::Composer;
 
+use strict;
 use warnings;
 
 use Test2::V0 -target => 'GPH::Composer';
 use Test2::Tools::Spec;
+
 use Data::Dumper;
+use Readonly;
 
-use constant CLASSMAP_FILE => './t/share/Composer/autoload_classmap.php';
+local $SIG{__WARN__} = sub {};
 
-local $SIG{__WARN__} = sub {
-    # warn $_[0] unless ($_[0] =~ /^Module::Pluggable will be removed/);
-};
+Readonly my $CLASSMAP_FILE => './t/share/Composer/autoload_classmap.php';
 
 describe "class `$CLASS`" => sub {
     tests 'it can be instantiated' => sub {
@@ -23,7 +24,7 @@ describe "class `$CLASS`" => sub {
 
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new(CLASSMAP_FILE);
+                $object = $CLASS->new($CLASSMAP_FILE);
             };
         };
 
@@ -64,7 +65,7 @@ describe 'test matching' => sub {
 
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new(CLASSMAP_FILE);
+                $object = $CLASS->new($CLASSMAP_FILE);
                 $result = $object->match($className, @paths);
             };
         };
