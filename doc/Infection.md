@@ -44,6 +44,10 @@ this script accepts a list of files and intersects them with the paths defined i
 this script assumes the presence of the CODEOWNERS file in the root directory of you project.
 though configurable in the `stdin2codeowner-filter.pl` file, for now no plans to make that configurable or accept it as input parameter.
 
+> [!CAUTION]    
+> the `stdin2codeowner-filter.pl` script requires either an optimised or an authoritative classmap file so make sure to generate one of those in your configuration (see example below).
+
+
 ### example config
 
 > gitlab-ci-yml
