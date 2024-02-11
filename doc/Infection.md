@@ -10,6 +10,9 @@ this script collects the paths defined in your CODEOWNERS file for given codeown
 this script assumes the presence of the CODEOWNERS file in the root directory of you project.
 though configurable in the `codeowner2commaseparatedlist.pl` file, for now no plans to make that configurable or accept it as input parameter.
 
+> [!CAUTION]    
+> the `codeowner2commaseparatedlist.pl` script requires either an optimised or an authoritative classmap file so make sure to generate one of those in your configuration (see example below).
+
 ### example config
 
 > gitlab-ci-yml

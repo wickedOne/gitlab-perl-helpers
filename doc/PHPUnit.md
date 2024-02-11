@@ -1,6 +1,6 @@
 ## PHPUnit
 
-`coverage2codeowner.pl` filters and re-calculates phpunit's coverage text output for a specific codeowner based on the paths defined in gitlab's CODEOWNER file.
+`GPH::PHPUnit.pm` filters and re-calculates phpunit's coverage text output for a specific codeowner based on the paths defined in gitlab's CODEOWNER file.
 
 on top of that a minimum coverage percentage can be defined (defaults to 0.1) which will cause your pipeline to fail if the line coverage % dives below that threshold.
 
@@ -21,8 +21,12 @@ the following environment variable is used by the coverage2codeowner script
 this script assumes the presence of composer at the usual location and the CODEOWNERS file in the root directory of you project.
 though both paths are configurable in the `coverage2codeowner.pl` file, for now no plans to make that configurable or accept them as input parameters.
 
-**note:** the script _does not_ alter how your test suite runs in any way (so no run filters are applied), it just filters the output and re-calculates the summary.
-this way the other coverage artifacts (junit & xml) can be used by for example infection (see below)
+> [!CAUTION]    
+> the `GPH::Composer.pm` module requires either an optimised or an authoritative classmap file so make sure to generate one of those in your configuration (see example below).
+
+> [!NOTE]  
+> the script _does not_ alter how your test suite runs in any way (so no run filters are applied), it just filters the output and re-calculates the summary.
+this way the other coverage artifacts (junit & xml) can be used by for example infection (see [Infection](Infection.md)).
 
 ### example config
 
