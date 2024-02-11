@@ -24,7 +24,7 @@ describe "class `$CLASS`" => sub {
 
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new($CLASSMAP_FILE);
+                $object = $CLASS->new((classmap => $CLASSMAP_FILE));
             };
         };
 
@@ -33,7 +33,16 @@ describe "class `$CLASS`" => sub {
 
         isnt($object->{classmap}, undef, 'classmap has been set');
         ref_ok($object->getClassMap());
-    }
+    };
+
+    tests "classmap not found" => sub {
+        ok(dies{$CLASS->new((classmap => 'foo.php'))}, 'died with classmap not found') or note ($@);
+    };
+
+    tests "mandatory config options" => sub {
+        ok(dies{$CLASS->new(())}, 'died with missing classmap option') or note ($@);
+        ok(lives{$CLASS->new((classmap => $CLASSMAP_FILE))}, 'lived with mandatory options') or note ($@);
+    };
 };
 
 describe 'test matching' => sub {
@@ -65,7 +74,7 @@ describe 'test matching' => sub {
 
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new($CLASSMAP_FILE);
+                $object = $CLASS->new((classmap => $CLASSMAP_FILE));
                 $result = $object->match($className, @paths);
             };
         };

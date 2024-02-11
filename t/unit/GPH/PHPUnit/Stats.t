@@ -11,9 +11,19 @@ use Data::Dumper;
 
 local $SIG{__WARN__} = sub {};
 
+my %config = (
+    owner     => '@teams/alpha',
+    threshold => 95.01
+);
+
 describe "class `$CLASS`" => sub {
     tests 'it can be instantiated' => sub {
         can_ok($CLASS, 'new');
+    };
+
+    tests "mandatory config options" => sub {
+        ok(dies{$CLASS->new((threshold => '1'))}, 'died with missing owner option') or note ($@);
+        ok(lives{$CLASS->new((owner => '@teams/alpha'))}, 'lives with mandatory options') or note ($@);
     };
 };
 
@@ -23,7 +33,7 @@ describe 'configuration options' => sub {
 
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new('@teams/alpha', '95.01');
+                $object = $CLASS->new(%config);
             };
         };
 
@@ -69,7 +79,7 @@ describe 'class methods' => sub {
 
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new('@teams/alpha', '95.01');
+                $object = $CLASS->new(%config);
 
                 for my $stats (@output) {
                     $object->add($stats);
@@ -105,7 +115,7 @@ describe "class method" => sub {
     tests "test exit_code method" => sub {
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new('@teams/alpha', $threshold);
+                $object = $CLASS->new((owner => '@teams/alpha', threshold => $threshold));
                 $object->add('Methods:  80.00% ( 4/ 5)   Lines:  97.96% ( 48/ 49)');
 
             };
@@ -123,7 +133,7 @@ describe "class method" => sub {
     tests "test summary method" => sub {
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new('@teams/alpha', 95);
+                $object = $CLASS->new(%config);
                 $object
                     ->add('Methods:  80.00% ( 4/ 5)   Lines:  97.96% ( 48/ 49)')
                     ->add('Methods:  50.00% ( 1/ 2)   Lines:  76.92% ( 10/ 13)')
@@ -158,7 +168,7 @@ describe "class method" => sub {
     tests "test footer method" => sub {
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new('@teams/alpha', $threshold);
+                $object = $CLASS->new((owner => '@teams/alpha', threshold => $threshold));
                 $object->add('Methods:  80.00% ( 4/ 5)   Lines:  97.96% ( 48/ 49)');
 
             };

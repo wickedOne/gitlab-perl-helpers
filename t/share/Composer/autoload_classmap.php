@@ -25,6 +25,7 @@ return array(
     'WickedOne\\PhraseTagBundle\\DependencyInjection\\WickedOnePhraseTagExtension' => $baseDir . '/src/DependencyInjection/WickedOnePhraseTagExtension.php',
     'WickedOne\\PhraseTagBundle\\Service\\PhraseTagService' => $baseDir . '/src/Service/PhraseTagService.php',
     'WickedOne\\PhraseTagBundle\\Service\\PhraseTaggerFactory' => $baseDir . '/src/Service/PhraseTaggerFactory.php',
+    'WickedOne\\PhraseTagBundle\\Service\\Provider\\SomethingProvider' => $baseDir . '/src/Service/Provider/SomethingProvider.php',
     'WickedOne\\PhraseTagBundle\\Tests\\Unit\\Command\\AbstractPhraseKeyCommandTest' => $baseDir . '/tests/Unit/Command/AbstractPhraseKeyCommandTest.php',
     'WickedOne\\PhraseTagBundle\\Tests\\Unit\\Command\\PhraseKeyTagCommandTest' => $baseDir . '/tests/Unit/Command/PhraseKeyTagCommandTest.php',
     'WickedOne\\PhraseTagBundle\\Tests\\Unit\\Command\\PhraseKeyUntagCommandTest' => $baseDir . '/tests/Unit/Command/PhraseKeyUntagCommandTest.php',

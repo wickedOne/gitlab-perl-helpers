@@ -5,6 +5,7 @@
 #
 # Revisions:    2023-03-27 - created
 #               2024-02-10 - namespaced module, bugfixes and unit tests
+#               2024-02-11 - constructor now requires named arguments
 #------------------------------------------------------------------------------
 package GPH::Infection;
 
@@ -14,18 +15,20 @@ use warnings FATAL => 'all';
 #------------------------------------------------------------------------------
 # Construct new GPH::Infection class
 #
-# Inputs:  0) string minimum msi
-#          1) string minimum covered msi
-#          2) int exit code for escapees
+# Inputs:  msi       => (string) minimum msi
+#          covered   => (string) minimum covered msi
+#          exit_code => int exit code for escapees, defaults to 8
 #
 # Returns: reference to GPH::Infection object
 sub new {
-    my ($class, $msi, $covered, $code) = @_;
+    my ($class, %args) = @_;
+
+    (exists($args{msi}) and exists($args{covered})) or die "$!";
 
     my $self = {
-        msi     => $msi,
-        covered => $covered,
-        code    => $code || 8,
+        msi     => $args{msi},
+        covered => $args{covered},
+        code    => $args{exit_code} || 8,
     };
 
     bless $self, $class;

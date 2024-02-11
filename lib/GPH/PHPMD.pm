@@ -6,6 +6,7 @@
 #
 # Revisions:    2023-07-05 - created
 #               2024-02-10 - namespaced module, bugfixes and unit tests
+#               2024-02-11 - constructor now requires named arguments
 #------------------------------------------------------------------------------
 
 package GPH::PHPMD;
@@ -19,16 +20,18 @@ use GPH::XMLHelper;
 #------------------------------------------------------------------------------
 # Construct new class
 #
-# Inputs:  0) string code owner
-#          1) int maximum cyclomatic complexity level
+# Inputs:  owner       => (string) code owner
+#          cyclo_level => (int) maximum cyclomatic complexity level
 #
 # Returns: reference to GPH::PHPMD object
 sub new {
-    my ($class, $owner, $cycloLevel) = @_;
+    my ($class, %args) = @_;
+
+    (exists($args{owner}) and exists($args{cyclo_level})) or die "$!";
 
     my $self = {
-        owner      => $owner,
-        cycloLevel => $cycloLevel,
+        owner      => $args{owner},
+        cycloLevel => $args{cyclo_level},
         generator  => GPH::XMLHelper->new(),
     };
 

@@ -11,24 +11,25 @@ use GPH::PHPStan;
 use constant CODEOWNERS_FILE => './CODEOWNERS';
 
 my $owner  = $ENV{'DEV_TEAM'} or die "please define owner in DEV_TEAM env var";
+my @excludes = split /,/, ($ENV{'EXCLUDE_PATHS'} || '');
 
-my $exclude = $ENV{'EXCLUDE_PATHS'} || '';
-my @excludes = split /,/, $exclude;
+my $gitlab = GPH::Gitlab->new((owner => $owner, codeowners => './CODEOWNERS', excludes => @excludes));
 
-my $level = $ENV{'PHPSTAN_LEVEL'} || 6;
-my $baseline = $ENV{'PHPSTAN_BASELINE'} || undef;
-my $cacheDir = $ENV{'PHPSTAN_CACHE_DIR'} || undef;
-my $ignore = $ENV{'PHPSTAN_IGNORED_DIRS'} || '';
-my @ignored = split /,/, $ignore;
-my $includes = $ENV{'PHPSTAN_INCLUDES'} || './phpstan.ci.neon';
-my @includes = split /,/, $includes;
-my $threads = $ENV{'PHPSTAN_THREADS'} || undef;
+my @includes = split /,/, ($ENV{'PHPSTAN_INCLUDES'} || './phpstan.ci.neon');
+my @ignored = split /,/, ($ENV{'PHPSTAN_IGNORED_DIRS'} || '');
 
-my $gitlab = GPH::Gitlab->new(CODEOWNERS_FILE, $owner, @excludes);
+@ignored = (@ignored, $gitlab->getBlacklistPaths()); # merge ignored dirs with blacklist
 
-# merge ignored dirs with blacklist
-@ignored = (@ignored, $gitlab->getBlacklistPaths());
+my %config = (
+    level              => $ENV{'PHPSTAN_LEVEL'} || 6,
+    paths              => \$gitlab->getPaths(),
+    baseline           => $ENV{'PHPSTAN_BASELINE'},
+    ignoredDirectories => \@ignored,
+    cacheDir           => $ENV{'PHPSTAN_CACHE_DIR'},
+    includes           => \@includes,
+    threads            => $ENV{'PHPSTAN_THREADS'}
+);
 
-my $phpstan = GPH::PHPStan->new($level, $gitlab->getPathsReference(), $baseline, \@ignored, $cacheDir, \@includes, $threads);
+my $phpstan = GPH::PHPStan->new(%config);
 
 print $phpstan->getConfig();

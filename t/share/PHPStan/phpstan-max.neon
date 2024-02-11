@@ -4,9 +4,9 @@ includes:
 
 parameters:
     level: 1
-    tmpDir: tmp
+    tmpDir: /tmp
     parallel:
-        maximumNumberOfProcesses: 3
+        maximumNumberOfProcesses: 6
     paths:
         - src/Service/PhraseTagService.php
         - src/Command/AbstractPhraseKeyCommand.php

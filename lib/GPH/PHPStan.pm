@@ -5,6 +5,7 @@
 #
 # Revisions:    2023-07-25 - created
 #               2024-02-10 - namespaced module, bugfixes and unit tests
+#               2024-02-11 - constructor now requires named arguments
 #------------------------------------------------------------------------------
 
 package GPH::PHPStan;
@@ -15,27 +16,28 @@ use warnings FATAL => 'all';
 #------------------------------------------------------------------------------
 # Construct new class
 #
-# Inputs:  0) string phpstan error level
-#          1) array paths to analyse
-#          2) array paths to ignore
-#          3) string path to baseline file, defaults to undef
-#          4) array ignored directories
-#          5) string path to cache directory, defaults to 'var'
-#          6) array includes
-#          6) int threads, defaults to 4
+# Inputs:  level              => (string) phpstan error level
+#          paths              => (array) paths to analyse
+#          ignoredDirectories => (array) paths to ignore
+#          baseline           => (string) path to baseline file, defaults to undef
+#          cacheDir           => (string) path to cache directory, defaults to 'var'
+#          includes           => (array) includes
+#          threads            => (int) threads, defaults to 4
 #
 # Returns: reference to GPH::PHPStan object
 sub new {
-    my ($class, $level, $paths, $baseline, $ignoredDirectories, $cacheDir, $includes, $threads) = @_;
+    my ($class, %args) = @_;
+
+    (exists($args{level}) and exists($args{paths})) or die "$!";
 
     my $self = {
-        level              => $level,
-        paths              => $paths,
-        ignoredDirectories => $ignoredDirectories || undef,
-        baseline           => $baseline || undef,
-        cacheDir           => $cacheDir || 'var',
-        includes           => $includes || undef,
-        threads            => $threads || 4,
+        level              => $args{level},
+        paths              => $args{paths},
+        ignoredDirectories => $args{ignoredDirectories} || undef,
+        baseline           => $args{baseline} || undef,
+        cacheDir           => $args{cacheDir} || 'var',
+        includes           => $args{includes} || undef,
+        threads            => $args{threads} || 4
     };
 
     bless $self, $class;
@@ -49,31 +51,38 @@ sub new {
 # Returns: phpstan neon config file string
 sub getConfig {
     my $self = shift;
+    my $config;
 
-    my $config = "includes:";
+    if (defined $self->{baseline} || defined $self->{includes}) {
+        $config = "includes:";
 
-    if (defined $self->{baseline}) {
-        $config .= "\n    - $self->{baseline}";
+        if (defined $self->{baseline}) {
+            $config .= "\n    - $self->{baseline}";
+        }
+
+        foreach my $line (@{$self->{includes}}) {
+            $config .= "\n    - $line" if defined $line;
+        }
+
+        $config .= "\n\n";
     }
 
-    foreach my $include (@{$self->{includes}}) {
-        $config .= "\n    - $include";
-    }
-
-    $config .= "\n\nparameters:";
+    $config .= "parameters:";
     $config .= "\n    level: $self->{level}";
     $config .= "\n    tmpDir: $self->{cacheDir}";
     $config .= "\n    parallel:\n        maximumNumberOfProcesses: $self->{threads}";
 
     $config .= "\n    paths:";
+
     foreach my $path (@{$self->{paths}}) {
         $config .= "\n        - $path";
     }
 
-    if (@{$self->{ignoredDirectories}}) {
+    if (defined $self->{ignoredDirectories}) {
         $config .= "\n    excludePaths:";
-        foreach my $path (@{$self->{ignoredDirectories}}) {
-            $config .= "\n        - $path";
+
+        foreach my $ignore (@{$self->{ignoredDirectories}}) {
+            $config .= "\n        - $ignore" if defined $ignore;
         }
     }
 

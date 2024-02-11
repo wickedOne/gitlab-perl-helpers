@@ -10,6 +10,7 @@
 #               2023-08-30 - added config handler clone method
 #               2023-09-03 - build config using lib xml
 #               2024-02-10 - namespaced module, bugfixes and unit tests
+#               2024-02-11 - constructor now requires named arguments
 #------------------------------------------------------------------------------
 
 package GPH::Psalm;
@@ -23,26 +24,28 @@ use GPH::XMLHelper;
 #------------------------------------------------------------------------------
 # Construct new class
 #
-# Inputs:  0) string psalm error level
-#          1) string paths to analyse
-#          2) string path to baseline file, defaults to undef
-#          3) string true|false used for setting the findUnusedBaselineEntry flag, defaults to true
-#          4) array ignored directories
-#          5) string path to cache directory, defaults to ./psalm
-#          6) array used plugins
+# Inputs:  level              => (string) psalm error level
+#          paths              => (string) paths to analyse
+#          baseline           => (string) path to baseline file, defaults to undef
+#          baselineCheck      => (string) true|false used for setting the findUnusedBaselineEntry flag, defaults to true
+#          ignoredDirectories => (array) ignored directories
+#          cacheDir           => (string) path to cache directory, defaults to ./psalm
+#          plugins            => (array) used plugins
 #
 # Returns: reference to GPH::Psalm object
 sub new {
-    my ($class, $level, $paths, $baseline, $baselineCheck, $ignoredDirectories, $cacheDir, $plugins) = @_;
+    my ($class, %args) = @_;
+
+    (exists($args{level}) and exists($args{paths})) or die "$!";
 
     my $self = {
-        level              => $level,
-        paths              => $paths,
-        ignoredDirectories => $ignoredDirectories || undef,
-        baseline           => $baseline || undef,
-        baselineCheck      => $baselineCheck || 'true',
-        cacheDir           => $cacheDir || './psalm',
-        plugins            => $plugins || undef,
+        level              => $args{level},
+        paths              => $args{paths},
+        ignoredDirectories => $args{ignoredDirectories} || undef,
+        baseline           => $args{baseline} || undef,
+        baselineCheck      => $args{baselineCheck} || 'true',
+        cacheDir           => $args{cacheDir} || './psalm',
+        plugins            => $args{plugins} || undef,
         generator          => GPH::XMLHelper->new(),
     };
 

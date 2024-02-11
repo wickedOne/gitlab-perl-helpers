@@ -13,6 +13,12 @@ describe "class `$CLASS`" => sub {
     tests 'it can be instantiated' => sub {
         can_ok($CLASS, 'new');
     };
+
+    tests "mandatory config options" => sub {
+        ok(dies{$CLASS->new((msi => '9.0'))}, 'died with missing covered') or note ($@);
+        ok(dies{$CLASS->new((covered => '9.0'))}, 'died with missing msi') or note ($@);
+        ok(lives{$CLASS->new((msi => '9.0', covered => '9.0'))}, 'lives with mandatory options') or note ($@);
+    };
 };
 
 describe "class `$CLASS` instantiation values" => sub {
@@ -33,7 +39,7 @@ describe "class `$CLASS` instantiation values" => sub {
 
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new('9.0', '5.0', $code);
+                $object = $CLASS->new((msi => '9.0', covered => '5.0', exit_code => $code));
                 $exit_code = $object->{code};
             };
         };
@@ -55,11 +61,14 @@ describe "class `$CLASS` instantiation values" => sub {
 };
 
 describe 'test parse' => sub {
-    my ($msi, $covered, $escapees, $output_score, $output_msi, $expected_code);
+    my (%config, $msi, $covered, $escapees, $output_score, $output_msi, $expected_code);
 
     case 'msi ok, covered ok' => sub {
-        $msi = '90';
-        $covered = '95';
+        %config = (
+            msi     => '90',
+            covered => '95',
+        );
+
         $escapees = 0;
         $output_score = '95';
         $output_msi = '95';
@@ -67,8 +76,11 @@ describe 'test parse' => sub {
     };
 
     case 'msi not ok, covered not ok' => sub {
-        $msi = '100';
-        $covered = '100';
+        %config = (
+            msi     => '100',
+            covered => '100',
+        );
+
         $escapees = 0;
         $output_score = '95';
         $output_msi = '95';
@@ -76,8 +88,11 @@ describe 'test parse' => sub {
     };
 
     case 'msi ok, covered not ok' => sub {
-        $msi = '95';
-        $covered = '100';
+        %config = (
+            msi     => '95',
+            covered => '100',
+        );
+
         $escapees = 0;
         $output_score = '95';
         $output_msi = '95';
@@ -85,8 +100,11 @@ describe 'test parse' => sub {
     };
 
     case 'msi not ok, covered ok' => sub {
-        $msi = '100';
-        $covered = '80';
+        %config = (
+            msi     => '100',
+            covered => '80',
+        );
+
         $escapees = 0;
         $output_score = '95';
         $output_msi = '95';
@@ -94,8 +112,11 @@ describe 'test parse' => sub {
     };
 
     case 'msi ok, covered ok, escapees' => sub {
-        $msi = '95';
-        $covered = '95';
+        %config = (
+            msi     => '95',
+            covered => '95',
+        );
+
         $escapees = 1;
         $output_score = '100';
         $output_msi = '100';
@@ -125,12 +146,16 @@ Metrics:
         $exception = dies {
             $warnings = warns {
                 local *ARGV;
-                open *ARGV, '<', \$stdin or die "no can do $!";
+                local *STDOUT;
 
-                $object = $CLASS->new($msi, $covered);
+                open *ARGV, '<', \$stdin or die "no can do $!";
+                open *STDOUT, '>', \$stdout;
+
+                $object = $CLASS->new(%config);
                 $exit_code = $object->parse();
 
                 close *ARGV;
+                close *STDOUT;
             };
         };
 
