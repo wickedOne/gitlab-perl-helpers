@@ -6,9 +6,11 @@ use warnings;
 
 use Test2::V0 -target => 'GPH::Gitlab';
 use Test2::Tools::Spec;
-use Data::Dumper;
 
-use constant CODEOWNERS_FILE => './t/share/Gitlab/CODEOWNERS';
+use Data::Dumper;
+use Readonly;
+
+Readonly my $CODEOWNERS_FILE => './t/share/Gitlab/CODEOWNERS';
 
 local $SIG{__WARN__} = sub {};
 
@@ -23,7 +25,7 @@ describe "class `$CLASS`" => sub {
         @excludes = qw{.gitlab-ci.yml};
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new(CODEOWNERS_FILE, '@teams/alpha', @excludes);
+                $object = $CLASS->new($CODEOWNERS_FILE, '@teams/alpha', @excludes);
             };
         };
 
@@ -40,7 +42,7 @@ describe "class `$CLASS`" => sub {
         @excludes = qw{.gitlab-ci.yml};
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new(CODEOWNERS_FILE, '@teams/alpha', @excludes);
+                $object = $CLASS->new($CODEOWNERS_FILE, '@teams/alpha', @excludes);
             };
         };
 

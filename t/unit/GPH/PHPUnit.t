@@ -8,11 +8,12 @@ use Test2::V0 -target => 'GPH::PHPUnit';
 use Test2::Tools::Spec;
 
 use Data::Dumper;
+use Readonly;
 
-use constant CODEOWNERS_FILE => './t/share/Gitlab/CODEOWNERS';
-use constant CLASSMAP_FILE => './t/share/Composer/autoload_classmap.php';
-use constant PHPUNIT_OUTPUT_FILE => './t/share/PHPUnit/phpunit-output.txt';
-use constant PHPUNIT_BASELINE_FILE => './t/share/PHPUnit/phpunit-baseline.txt';
+Readonly my $CODEOWNERS_FILE => './t/share/Gitlab/CODEOWNERS';
+Readonly my $CLASSMAP_FILE => './t/share/Composer/autoload_classmap.php';
+Readonly my $PHPUNIT_OUTPUT_FILE => './t/share/PHPUnit/phpunit-output.txt';
+Readonly my $PHPUNIT_BASELINE_FILE => './t/share/PHPUnit/phpunit-baseline.txt';
 
 local $SIG{__WARN__} = sub {};
 
@@ -39,7 +40,7 @@ describe 'configuration options' => sub {
     case 'maximal options' => sub {
         $threshold = 95.5;
         @excludes = qw{.gitlab-ci.yml};
-        $baseline = PHPUNIT_BASELINE_FILE;
+        $baseline = $PHPUNIT_BASELINE_FILE;
         $expected_threshold = $threshold;
         @expected_baseline = qw{/src/Service/Provider/ /src/Mapper/};
     };
@@ -49,7 +50,7 @@ describe 'configuration options' => sub {
 
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new($owner, CODEOWNERS_FILE, CLASSMAP_FILE, $threshold, \@excludes, $baseline);
+                $object = $CLASS->new($owner, $CODEOWNERS_FILE, $CLASSMAP_FILE, $threshold, \@excludes, $baseline);
             };
         };
 
@@ -94,22 +95,19 @@ describe "parsing phpunit report output" => sub {
     };
 
     tests "test `$CLASS` exit code" => sub {
-        my ($stdin, $stdout, $object, $exception, $warnings, $exit_code);
+        my ($stdout, $object, $exception, $warnings, $exit_code);
         my @excludes = qw{.gitlab-ci.yml};
 
-        $object = $CLASS->new('@teams/alpha', CODEOWNERS_FILE, CLASSMAP_FILE, $threshold, \@excludes, PHPUNIT_BASELINE_FILE);
 
         $exception = dies {
             $warnings = warns {
-                open ($stdin, '<', PHPUNIT_OUTPUT_FILE);
-                local *STDIN = $stdin;
-                open(my $output, '>', \$stdout) or die;
-                my $fh = select $output;
+                local *ARGV;
+                open *ARGV, '<', $PHPUNIT_OUTPUT_FILE or die "can't open ${PHPUNIT_OUTPUT_FILE}";
 
+                $object = $CLASS->new('@teams/alpha', $CODEOWNERS_FILE, $CLASSMAP_FILE, $threshold, \@excludes, $PHPUNIT_BASELINE_FILE);
                 $exit_code = $object->parse();
 
-                select $fh;
-                close $output;
+                close *ARGV;
             };
         };
 

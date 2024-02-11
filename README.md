@@ -20,7 +20,7 @@ the following environment variables are used by all scripts
 most scripts generate a custom config file on the fly.
 
 for more details on supported (static) analysis tools and implementation examples see the following:
-1. [PHPUNIT](doc/PHPUnit.md)
+1. [PHPUnit](doc/PHPUnit.md)
 2. [Infection](doc/Infection.md)
 3. [Psalm](doc/Psalm.md)
 4. [PHPStan](doc/PHPStan.md)

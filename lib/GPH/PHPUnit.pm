@@ -52,7 +52,7 @@ sub new {
     bless $self, $class;
 
     if (defined $baseline) {
-        open(my $fh, $baseline) or die "unable to open phpunit baseline file ${baseline} $!";
+        open(my $fh, '<', $baseline) or die "unable to open phpunit baseline file ${baseline} $!";
         my @lines = ();
 
         while (<$fh>) {
@@ -74,7 +74,7 @@ sub new {
 sub parse {
     my ($self) = @_;
 
-    while (<STDIN>) {
+    while (<>) {
         chomp $_;
 
         # ignore lines with spaces
@@ -84,7 +84,7 @@ sub parse {
         next if $self->{composer}->match($_, @{$self->{baseline}});
         next if $self->{composer}->match($_, @{$self->{gitlab}->getBlacklistPaths()});
         # read next line for stats
-        my $stats = <STDIN>;
+        my $stats = <>;
 
         $self->{classreport}{$_} = $stats;
         $self->{stats}->add($stats);
