@@ -45,7 +45,10 @@ describe "class `$CLASS` instantiation values" => sub {
 
     case 'maximum config' => sub {
         @ignoredDirectories = qw(/ignored/);
+        $ignoredDirectories[1] = undef;
+
         @includes = qw(/includes/);
+        $includes[1] = undef;
 
         %config = (
             level              => 1,

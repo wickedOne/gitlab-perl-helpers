@@ -81,7 +81,7 @@ sub getConfig {
         ));
     }
 
-    if (@{$self->{ignoredDirectories}}) {
+    if (defined $self->{ignoredDirectories}) {
         my $ignoreFiles = $self->{generator}->buildElement('ignoreFiles', undef, $projectFiles);
 
         foreach my $path (@{$self->{ignoredDirectories}}) {
@@ -91,7 +91,7 @@ sub getConfig {
         }
     }
 
-    if (@{$self->{plugins}}) {
+    if (defined $self->{plugins}) {
         my $plugins = $self->{generator}->buildElement('plugins', undef, $psalm);
 
         foreach my $plugin (@{$self->{plugins}}) {

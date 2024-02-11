@@ -1,6 +1,6 @@
 [alpha]
 /src/Command @teams/alpha
-/src/Service @teams/alpha
+/src/Service @teams/alpha @#!$%^
 .gitlab-ci.yml @teams/alpha
 
 [beta]

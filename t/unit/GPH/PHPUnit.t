@@ -30,7 +30,7 @@ describe "class `$CLASS`" => sub {
     };
 
     tests "baseline file not found" => sub {
-        ok(dies{$CLASS->new((codeowners => $CODEOWNERS_FILE, owner =>'@teams/alpha', baseline => 'foo.txt'))}, 'died with codeowners not found') or note ($@);
+        ok(dies{$CLASS->new((codeowners => $CODEOWNERS_FILE, owner =>'@teams/alpha', baseline => 'foo.txt'))}, 'died with baseline not found') or note ($@);
     };
 };
 
