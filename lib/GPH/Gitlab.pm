@@ -68,8 +68,6 @@ sub new {
         }
     }
 
-    close($fh);
-
     my $self = {
         owner      => $owner,
         codeowners => \%codeowners,
