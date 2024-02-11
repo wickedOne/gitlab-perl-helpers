@@ -7,13 +7,15 @@ use lib dirname(__FILE__) . '/lib/';
 
 use GPH::Gitlab;
 
-use constant CODEOWNERS_FILE => './CODEOWNERS';
+my $owner = $ENV{'DEV_TEAM'} or die "please define owner in DEV_TEAM env var";
+my @excludes = split /,/, ($ENV{'EXCLUDE_PATHS'} || '');
 
-my $owner  = $ENV{'DEV_TEAM'} or die "please define owner in DEV_TEAM env var";
+my %config = (
+    owner      => $owner,
+    codeowners => './CODEOWNERS',
+    excludes   => @excludes
+);
 
-my $paths = $ENV{'EXCLUDE_PATHS'} || '';
-my @excludes = split /,/, $paths;
-
-my $gitlab = GPH::Gitlab->new(CODEOWNERS_FILE, $owner, @excludes);
+my $gitlab = GPH::Gitlab->new(%config);
 
 print $gitlab->getCommaSeparatedPathList();

@@ -21,27 +21,45 @@ describe "class `$CLASS`" => sub {
     tests 'it can be instantiated' => sub {
         can_ok($CLASS, 'new');
     };
+
+    tests 'dies without correct config' => sub {
+        ok(dies {$CLASS->new(('codeowners' => $CODEOWNERS_FILE, classmap => $CLASSMAP_FILE))}, 'died with missing owner option') or note($@);
+        ok(dies {$CLASS->new(('owner' => '@teams/alpha', classmap => $CLASSMAP_FILE))}, 'died with missing codeowners option') or note($@);
+        ok(dies {$CLASS->new(('owner' => '@teams/alpha', 'codeowners' => $CODEOWNERS_FILE))}, 'died with missing classmap option') or note($@);
+        ok(lives {$CLASS->new(('owner' => '@teams/alpha', 'codeowners' => $CODEOWNERS_FILE, classmap => $CLASSMAP_FILE))}, 'lives with mandatory config settings') or note($@);
+    };
+
+    tests "baseline file not found" => sub {
+        ok(dies{$CLASS->new((codeowners => $CODEOWNERS_FILE, owner =>'@teams/alpha', baseline => 'foo.txt'))}, 'died with codeowners not found') or note ($@);
+    };
 };
 
 describe 'configuration options' => sub {
-    my ($owner, $threshold, @excludes, $baseline);
-    my ($expected_threshold, @expected_baseline);
-
+    my ($owner, %config, $expected_threshold, @expected_baseline);
     $owner = '@teams/alpha';
 
     case 'minimal options' => sub {
-        $threshold = undef;
-        @excludes = qw();
-        $baseline = undef;
+        %config = (
+            owner      => $owner,
+            classmap   => $CLASSMAP_FILE,
+            codeowners => $CODEOWNERS_FILE,
+        );
+
         $expected_threshold = 0.0;
         @expected_baseline = qw();
     };
 
     case 'maximal options' => sub {
-        $threshold = 95.5;
-        @excludes = qw{.gitlab-ci.yml};
-        $baseline = $PHPUNIT_BASELINE_FILE;
-        $expected_threshold = $threshold;
+        %config = (
+            owner      => $owner,
+            classmap   => $CLASSMAP_FILE,
+            codeowners => $CODEOWNERS_FILE,
+            threshold  => 95.5,
+            excludes   => qw{.gitlab-ci.yml},
+            baseline   => $PHPUNIT_BASELINE_FILE
+        );
+
+        $expected_threshold = 95.5;
         @expected_baseline = qw{/src/Service/Provider/ /src/Mapper/};
     };
 
@@ -50,7 +68,7 @@ describe 'configuration options' => sub {
 
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new($owner, $CODEOWNERS_FILE, $CLASSMAP_FILE, $threshold, \@excludes, $baseline);
+                $object = $CLASS->new(%config);
             };
         };
 
@@ -65,13 +83,13 @@ describe 'configuration options' => sub {
                 field baseline => \@expected_baseline;
                 field classreport => {};
                 field stats => object {
-                    prop blessed =>'GPH::PHPUnit::Stats';
+                    prop blessed => 'GPH::PHPUnit::Stats';
                 };
                 field gitlab => object {
-                    prop blessed =>'GPH::Gitlab';
+                    prop blessed => 'GPH::Gitlab';
                 };
                 field composer => object {
-                    prop blessed =>'GPH::Composer';
+                    prop blessed => 'GPH::Composer';
                 };
                 end;
             },
@@ -82,32 +100,41 @@ describe 'configuration options' => sub {
 };
 
 describe "parsing phpunit report output" => sub {
-    my ($threshold, $expected_exit_code);
+    my ($expected_exit_code, %config);
+
+    %config = (
+        owner      => '@teams/alpha',
+        classmap   => $CLASSMAP_FILE,
+        codeowners => $CODEOWNERS_FILE,
+        excludes   => qw{.gitlab-ci.yml},
+        baseline   => $PHPUNIT_BASELINE_FILE
+    );
 
     case 'failure' => sub {
-        $threshold = 100;
+        $config{threshold} = 100;
         $expected_exit_code = 1;
     };
 
     case 'success' => sub {
-        $threshold = 95;
+        $config{threshold} = 95;
         $expected_exit_code = 0;
     };
 
     tests "test `$CLASS` exit code" => sub {
         my ($stdout, $object, $exception, $warnings, $exit_code);
-        my @excludes = qw{.gitlab-ci.yml};
-
 
         $exception = dies {
             $warnings = warns {
                 local *ARGV;
                 open *ARGV, '<', $PHPUNIT_OUTPUT_FILE or die "can't open ${PHPUNIT_OUTPUT_FILE}";
 
-                $object = $CLASS->new('@teams/alpha', $CODEOWNERS_FILE, $CLASSMAP_FILE, $threshold, \@excludes, $PHPUNIT_BASELINE_FILE);
+                local *STDOUT;
+                open *STDOUT, '>', \$stdout;
+                $object = $CLASS->new(%config);
                 $exit_code = $object->parse();
 
                 close *ARGV;
+                close *STDOUT;
             };
         };
 

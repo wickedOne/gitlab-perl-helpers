@@ -7,18 +7,17 @@ use lib dirname(__FILE__) . '/lib/';
 
 use GPH::PHPUnit;
 
-use constant CLASSMAP_FILE => './vendor/composer/autoload_classmap.php';
-use constant CODEOWNERS_FILE => './CODEOWNERS';
-
 my $owner  = $ENV{'DEV_TEAM'} or die "please define owner in DEV_TEAM env var";
+my @excludes = split /,/, ($ENV{'EXCLUDE_PATHS'} || '');
+my %config = (
+    owner      => $owner,
+    classmap   => './vendor/composer/autoload_classmap.php',
+    codeowners => './CODEOWNERS',
+    threshold  =>  $ENV{'MIN_COVERAGE'},
+    excludes   => \@excludes,
+    baseline   => $ENV{'PHPUNIT_BASELINE'}
+);
 
-my $coverage = $ENV{'MIN_COVERAGE'} || 0.1;
-
-my $paths = $ENV{'EXCLUDE_PATHS'} || '';
-my @excludes = split /,/, $paths;
-
-my $baseline = $ENV{'PHPUNIT_BASELINE'} || undef;
-
-my $phpunit = GPH::PHPUnit->new($owner, CODEOWNERS_FILE, CLASSMAP_FILE, $coverage, \@excludes, $baseline);
+my $phpunit = GPH::PHPUnit->new(%config);
 
 exit $phpunit->parse();

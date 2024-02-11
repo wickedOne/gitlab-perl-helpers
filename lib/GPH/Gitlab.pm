@@ -8,6 +8,7 @@
 #               2023-02-18 - added GetPathsReference to be used with psalm.pm
 #               2023-12-23 - added blacklist for more specific path definition
 #               2024-02-10 - namespaced module, bugfixes and unit tests
+#               2024-02-11 - constructor now requires named arguments
 #------------------------------------------------------------------------------
 package GPH::Gitlab;
 
@@ -17,21 +18,25 @@ use warnings FATAL => 'all';
 #------------------------------------------------------------------------------
 # Construct new class
 #
-# Inputs:  1) string path to code owners file
-#          2) string current code owner
-#          3) array paths to exclude
+# Inputs:  codeowners => (string) path to code owners file
+#          owner      => (string) current code owner
+#          excludes   => (array) paths to exclude
 #
 # Returns: reference to Gitlab object
 sub new {
-    my ($class, $path, $owner, @excludes) = @_;
+    my ($class, %args) = @_;
     my (%codeowners, %excludeHash, %blacklist);
 
+    (exists($args{owner}) and exists($args{codeowners})) or die "$!";
+
     # build excludes hash for quick lookup
-    foreach my $item (@excludes) {
-        $excludeHash{$item} = 1;
+    if (exists($args{excludes})) {
+        foreach my $item ($args{excludes}) {
+            $excludeHash{$item} = 1;
+        }
     }
 
-    open(my $fh, '<', $path) or die "unable to open codeowners file, initialization failed $!";
+    open(my $fh, '<', $args{codeowners}) or die "unable to open codeowners file, initialization failed $!";
 
     my @lines = <$fh>;
 
@@ -69,7 +74,7 @@ sub new {
     }
 
     my $self = {
-        owner      => $owner,
+        owner      => $args{owner},
         codeowners => \%codeowners,
         blacklist  => \%blacklist,
     };

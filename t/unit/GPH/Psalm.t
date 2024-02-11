@@ -14,39 +14,52 @@ describe "class `$CLASS`" => sub {
     tests 'it can be instantiated' => sub {
         can_ok($CLASS, 'new');
     };
+
+    tests "mandatory config options" => sub {
+        ok(dies{$CLASS->new((level => '1'))}, 'died with missing paths') or note ($@);
+        ok(dies{$CLASS->new((paths => []))}, 'died with missing level') or note ($@);
+        ok(lives{$CLASS->new((level => '1', paths => []))}, 'lives with mandatory options') or note ($@);
+    };
 };
 
 describe 'configuration options' => sub {
-    my ($level, @paths, $baseline, $baselineCheck, @ignoredDirectories, $cacheDir, @plugins);
-    my ($expected_baseline, $expected_baselineCheck, @expected_ignoredDirectories, $expected_cacheDir, @expected_plugins);
+    my (%config, $level, @paths, @ignoredDirectories, @plugins);
+    my ($expected_baseline, $expected_baselineCheck, $expected_ignoredDirectories, $expected_cacheDir, $expected_plugins);
 
     $level = 2;
     @paths = qw[src/Service/PhraseTagService.php src/Command/AbstractPhraseKeyCommand.php];
+    @ignoredDirectories = qw{/ignored/};
+    @plugins =  qw{Psalm\SymfonyPsalmPlugin\Plugin};
 
     case 'minimal options' => sub {
-        $baseline = undef;
-        $baselineCheck = undef;
-        @ignoredDirectories = undef;
-        $cacheDir = undef;
-        @plugins = undef;
+        %config = (
+            level => 2,
+            paths => \@paths,
+        );
+
         $expected_baselineCheck = 'true';
         $expected_cacheDir = './psalm';
         $expected_baseline = undef;
-        @expected_ignoredDirectories = undef;
-        @expected_plugins = undef;
+        $expected_ignoredDirectories = undef;
+        $expected_plugins = undef;
     };
 
     case 'maximal options' => sub {
-        $baseline = './baselines/psalm-baseline.xml';
-        $baselineCheck = 'false';
-        @ignoredDirectories = qw{/ignored/};
-        $cacheDir = 'var/cache';
-        @plugins = qw{Psalm\SymfonyPsalmPlugin\Plugin};
-        $expected_baseline = $baseline;
-        $expected_baselineCheck = $baselineCheck;
-        @expected_ignoredDirectories = @ignoredDirectories;
-        $expected_cacheDir = $cacheDir;
-        @expected_plugins = @plugins;
+        %config = (
+            level              => 2,
+            paths              => \@paths,
+            ignoredDirectories => \@ignoredDirectories,
+            baseline           => './baselines/psalm-baseline.xml',
+            baselineCheck      => 'false',
+            cacheDir           => 'var/cache',
+            plugins            => \@plugins,
+        );
+
+        $expected_baseline = $config{baseline};
+        $expected_baselineCheck = $config{baselineCheck};
+        $expected_ignoredDirectories = \@ignoredDirectories;
+        $expected_cacheDir = $config{cacheDir};
+        $expected_plugins = \@plugins;
     };
 
     tests 'instantation' => sub {
@@ -54,7 +67,7 @@ describe 'configuration options' => sub {
 
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new($level, \@paths, $baseline, $baselineCheck, \@ignoredDirectories, $cacheDir, \@plugins);
+                $object = $CLASS->new(%config);
             };
         };
 
@@ -66,11 +79,11 @@ describe 'configuration options' => sub {
             object {
                 field level => $level;
                 field paths => \@paths;
-                field ignoredDirectories => \@expected_ignoredDirectories;
+                field ignoredDirectories => $expected_ignoredDirectories;
                 field baseline => $expected_baseline;
                 field baselineCheck => $expected_baselineCheck;
                 field cacheDir => $expected_cacheDir;
-                field plugins => \@expected_plugins;
+                field plugins => $expected_plugins;
                 field generator => object {
                     prop blessed => 'GPH::XMLHelper';
                 };
@@ -84,7 +97,17 @@ describe 'configuration options' => sub {
 
 describe "class `$CLASS` config generation" => sub {
     my @paths = qw{/src/Command /src/Service};
-    my $object = $CLASS->new(2, \@paths, 'baselines/psalm-baseline.xml', 'true', ['vendor'], './psalm', ['Psalm\SymfonyPsalmPlugin\Plugin']);
+    my %config = (
+        level              => 2,
+        paths              => \@paths,
+        ignoredDirectories => ['vendor'],
+        baseline           => 'baselines/psalm-baseline.xml',
+        baselineCheck      => 'true',
+        cacheDir           => './psalm',
+        plugins            => ['Psalm\SymfonyPsalmPlugin\Plugin'],
+    );
+
+    my $object = $CLASS->new(%config);
 
     tests 'compare config contents' => sub {
         my $config = $object->getConfig();
@@ -101,7 +124,7 @@ describe "class `$CLASS` config generation" => sub {
     };
 
     tests 'compare config with issue handlers content' => sub {
-        my $config = $object->getConfigWithIssueHandlers('./t/share/Psalm/psalm-stub.xml', qw{MoreSpecificImplementedParamType});
+        my $config = $object->getConfigWithIssueHandlers('./t/share/Psalm/psalm-stub.xml', qw{MoreSpecificImplementedParamType NonExistingHandler});
         my $mock;
 
         open (my $fh, '<', './t/share/Psalm/psalm-issue-handlers.xml');

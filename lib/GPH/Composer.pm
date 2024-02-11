@@ -6,6 +6,7 @@
 #
 # Revisions:    2023-01-20 - created
 #               2024-02-10 - namespaced module, bugfixes and unit tests
+#               2024-02-11 - constructor now requires named arguments
 #------------------------------------------------------------------------------
 package GPH::Composer;
 
@@ -15,14 +16,19 @@ use warnings FATAL => 'all';
 #------------------------------------------------------------------------------
 # Construct new class
 #
+# Inputs:  classmap => (string) path to code owners file
+#
 # Returns: reference to GPH::Composer object
 sub new {
-    my ($class, $path) = @_;
+    my ($class, %args) = @_;
+
+    exists($args{classmap}) or die "$!";
+
     my $self = {};
 
     bless $self, $class;
 
-    $self->{classmap} = $self->parseClassMap($path);
+    $self->{classmap} = $self->parseClassMap($args{classmap});
 
     return $self;
 }

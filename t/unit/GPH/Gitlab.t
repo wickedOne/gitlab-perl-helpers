@@ -15,17 +15,32 @@ Readonly my $CODEOWNERS_FILE => './t/share/Gitlab/CODEOWNERS';
 local $SIG{__WARN__} = sub {};
 
 describe "class `$CLASS`" => sub {
+    my %config = (
+        codeowners => $CODEOWNERS_FILE,
+        owner =>'@teams/alpha',
+        excludes => qw{.gitlab-ci.yml}
+    );
+
     tests 'it can be instantiated' => sub {
         can_ok($CLASS, 'new');
+    };
+
+    tests "codeowners file not found" => sub {
+        ok(dies{$CLASS->new((codeowners => 'foo.php', owner =>'@teams/alpha'))}, 'died with codeowners not found') or note ($@);
+    };
+
+    tests "mandatory config options" => sub {
+        ok(dies{$CLASS->new((owner =>'@teams/alpha'))}, 'died with missing codeowners option') or note ($@);
+        ok(dies{$CLASS->new((codeowners => $CODEOWNERS_FILE))}, 'died with missing owner option') or note ($@);
+        ok(lives{$CLASS->new((owner =>'@teams/alpha', codeowners => $CODEOWNERS_FILE))}, 'lived with mandatory options') or note ($@);
     };
 
     tests 'owner with blacklist and exclude' => sub {
         my ($object, $exception, $warnings, @excludes);
 
-        @excludes = qw{.gitlab-ci.yml};
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new($CODEOWNERS_FILE, '@teams/alpha', @excludes);
+                $object = $CLASS->new(%config);
             };
         };
 
@@ -39,10 +54,9 @@ describe "class `$CLASS`" => sub {
     tests 'module methods' => sub {
         my ($object, $exception, $warnings, @excludes);
 
-        @excludes = qw{.gitlab-ci.yml};
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new($CODEOWNERS_FILE, '@teams/alpha', @excludes);
+                $object = $CLASS->new(%config);
             };
         };
 

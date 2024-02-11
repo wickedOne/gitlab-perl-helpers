@@ -1,0 +1,8 @@
+parameters:
+    level: 4
+    tmpDir: var
+    parallel:
+        maximumNumberOfProcesses: 4
+    paths:
+        - src/Service/PhraseTagService.php
+        - src/Command/AbstractPhraseKeyCommand.php

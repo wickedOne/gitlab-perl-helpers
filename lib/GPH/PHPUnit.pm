@@ -10,6 +10,7 @@
 #                            within owner's code-space.
 #                            sort stats output for ease of lookup
 #               2024-02-10 - namespaced module, bugfixes and unit tests
+#               2024-02-11 - constructor now requires named arguments
 #------------------------------------------------------------------------------
 package GPH::PHPUnit;
 
@@ -26,33 +27,33 @@ use GPH::PHPUnit::Stats;
 #------------------------------------------------------------------------------
 # Construct new GPH::PHPUnit class
 #
-# Inputs:  0) string code owner
-#          1) string path to code owners file
-#          2) string path to classmap file
-#          3) float minimal coverage percentage threshold, defaults to 0.0
-#          4) array code owner paths to exclude
-#          5) string path to baseline file, defaults to undef
+# Inputs:  owner      => (string) code owner
+#          codeowners => (string) path to code owners file
+#          classmap   => (string) path to classmap file
+#          threshold  => (float) minimal coverage percentage threshold, defaults to 0.0
+#          excludes   => (array) code owner paths to exclude
+#          baseline   => (string) path to baseline file, defaults to undef
 #
 # Returns: reference to GPH::PHPUnit object
 sub new {
-    my ($class, $owner, $codeowners, $classmap, $threshold, $excludes, $baseline) = @_;
+    my ($class, %args) = @_;
 
-    $threshold = $threshold || 0.0;
+    (exists($args{owner}) and exists($args{codeowners}) and exists($args{classmap})) or die "$!";
 
     my $self = {
-        owner       => $owner,
-        threshold   => $threshold,
-        stats       => GPH::PHPUnit::Stats->new($owner, $threshold),
+        owner       => $args{owner},
+        threshold   => $args{threshold} || 0.0,
+        stats       => GPH::PHPUnit::Stats->new(%args),
         classreport => {},
         baseline    => [],
-        gitlab      => GPH::Gitlab->new($codeowners, $owner, @{$excludes}),
-        composer    => GPH::Composer->new($classmap),
+        gitlab      => GPH::Gitlab->new(%args),
+        composer    => GPH::Composer->new(%args),
     };
 
     bless $self, $class;
 
-    if (defined $baseline) {
-        open(my $fh, '<', $baseline) or die "unable to open phpunit baseline file ${baseline} $!";
+    if (exists($args{baseline})) {
+        open(my $fh, '<', $args{baseline}) or die "unable to open phpunit baseline file $args{baseline} $!";
         my @lines = ();
 
         while (<$fh>) {
@@ -93,7 +94,7 @@ sub parse {
     # print report
     print $self->{stats}->summary() . $self->classReport() . $self->{stats}->footer();
 
-    return($self->{stats}->exitCode());
+    return ($self->{stats}->exitCode());
 }
 
 #------------------------------------------------------------------------------
@@ -109,7 +110,7 @@ sub classReport {
         $report .= sprintf("%s\n%s\n", $stats, $self->{classreport}{$stats});
     }
 
-    return($report);
+    return ($report);
 }
 
 1;

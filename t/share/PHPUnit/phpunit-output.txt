@@ -32,6 +32,8 @@ WickedOne\PhraseTagBundle\Command\AbstractPhraseKeyCommand
   Methods: 100.00% ( 4/ 4)   Lines: 100.00% ( 30/ 30)
 WickedOne\PhraseTagBundle\Command\PhraseKeyTagCommand
   Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 13/ 13)
+WickedOne\PhraseTagBundle\Command\Config\ConfigPhraseKeyCommand
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 13/ 13)
 WickedOne\PhraseTagBundle\Command\PhraseKeyUntagCommand
   Methods:  50.00% ( 1/ 2)   Lines:  76.92% ( 10/ 13)
 WickedOne\PhraseTagBundle\DependencyInjection\Configuration
@@ -42,6 +44,8 @@ WickedOne\PhraseTagBundle\Service\PhraseTagService
   Methods:  80.00% ( 4/ 5)   Lines:  97.96% ( 48/ 49)
 WickedOne\PhraseTagBundle\Service\PhraseTaggerFactory
   Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 18/ 18)
+WickedOne\PhraseTagBundle\Service\Provider\SomethingProvider
+  Methods:  66.66% ( 2/ 3)   Lines:  80.00% (  8/ 10)
 WickedOne\PhraseTagBundle\WickedOnePhraseTagBundle
   Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  1/  1)
 

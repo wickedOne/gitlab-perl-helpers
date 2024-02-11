@@ -4,6 +4,7 @@
 # Description:  Processes PHPUnit coverage output statistics
 #
 # Revisions:    2024-02-10 - created
+#               2024-02-11 - constructor now requires named arguments
 #------------------------------------------------------------------------------
 package GPH::PHPUnit::Stats;
 
@@ -19,15 +20,19 @@ use lib dirname(__FILE__);
 #------------------------------------------------------------------------------
 # Construct new GPH::PHPUnit::Stats class
 #
-# Inputs:  0) string code owner
-#          1) float minimal coverage percentage threshold
+# Inputs:  owner     => (string) code owner
+#          threshold => (float) minimal coverage percentage threshold, defaults to 0.0
 #
 # Returns: reference to GPH::PHPUnit::Stats object
 sub new {
-    my ($proto, $owner, $threshold) = @_;
+    my ($proto, %args) = @_;
+
+    exists($args{owner}) or die "$!";
+
+    my $threshold = $args{threshold} || 0.0;
 
     my $self = {
-        'owner' => $owner,
+        'owner' => $args{owner},
         'threshold' => sprintf("%.2f", $threshold),
         'classes' => GPH::PHPUnit::Stat->new(),
         'methods' => GPH::PHPUnit::Stat->new(),
