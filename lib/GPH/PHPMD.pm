@@ -45,33 +45,33 @@ sub new {
 #
 # Returns: ruleset.xml config file string
 sub getConfig {
-  my $self = shift;
+    my $self = shift;
 
-  my $ruleset = $self->{generator}->buildElement('ruleset', undef, undef, (
-    'xmlns:xsi'                     => 'http://www.w3.org/2001/XMLSchema-instance',
-    'xsi:schemaLocation'            => 'http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd',
-    'xsi:noNamespaceSchemaLocation' => 'http://pmd.sf.net/ruleset_xml_schema.xsd',
-    'name'                          => "$self->{owner} PHPMD rule set",
-  ));
+    my $ruleset = $self->{generator}->buildElement((name => 'ruleset', attributes => {
+        'xmlns:xsi'                     => 'http://www.w3.org/2001/XMLSchema-instance',
+        'xsi:schemaLocation'            => 'http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd',
+        'xsi:noNamespaceSchemaLocation' => 'http://pmd.sf.net/ruleset_xml_schema.xsd',
+        'name'                          => "$self->{owner} PHPMD rule set",
+    }));
 
-  $ruleset->setNamespace('http://pmd.sf.net/ruleset/1.0.0');
+    $ruleset->setNamespace('http://pmd.sf.net/ruleset/1.0.0');
 
-  my $rule = $self->{generator}->buildElement('rule', undef, $ruleset, (
-    'ref'                           => 'rulesets/codesize.xml/CyclomaticComplexity'
-  ));
+    my $rule = $self->{generator}->buildElement((name => 'rule', parent => $ruleset, attributes => {
+        'ref' => 'rulesets/codesize.xml/CyclomaticComplexity'
+    }));
 
-  my $properties = $self->{generator}->buildElement('properties', undef, $rule);
+    my $properties = $self->{generator}->buildElement((name => 'properties', parent => $rule));
 
-  $self->{generator}->buildElement('property', undef, $properties, (
-    'name'                          => 'reportLevel',
-    'value'                         => $self->{cycloLevel}
-  ));
+    $self->{generator}->buildElement((name => 'property', parent => $properties, attributes => {
+        'name'  => 'reportLevel',
+        'value' => $self->{cycloLevel}
+    }));
 
-  my $dom = $self->{generator}->getDom();
+    my $dom = $self->{generator}->getDom();
 
-  $dom->setDocumentElement($ruleset);
+    $dom->setDocumentElement($ruleset);
 
-  return ($dom->toString(1));
+    return ($dom->toString(1));
 }
 
 1;

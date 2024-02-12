@@ -61,7 +61,7 @@ sub new {
 sub getConfig {
     my $self = shift;
 
-    my $psalm = $self->{generator}->buildElement('psalm', undef, undef, (
+    my $psalm = $self->{generator}->buildElement((name => 'psalm', attributes => {
         'resolveFromConfigFile'   => 'true',
         'xmlns:xsi'               => 'http://www.w3.org/2001/XMLSchema-instance',
         'xsi:schemaLocation'      => 'https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd',
@@ -69,35 +69,35 @@ sub getConfig {
         'cacheDirectory'          => $self->{cacheDir},
         'errorBaseline'           => $self->{baseline},
         'findUnusedBaselineEntry' => $self->{baselineCheck},
-    ));
+    }));
 
     $psalm->setNamespace('https://getpsalm.org/schema/config');
 
-    my $projectFiles = $self->{generator}->buildElement('projectFiles', undef, $psalm);
+    my $projectFiles = $self->{generator}->buildElement((name => 'projectFiles', parent => $psalm));
 
     foreach my $path (@{$self->{paths}}) {
-        $self->{generator}->buildElement('directory', undef, $projectFiles, (
+        $self->{generator}->buildElement((name => 'directory', parent => $projectFiles, attributes => {
             'name' => $path,
-        ));
+        }));
     }
 
     if (defined $self->{ignoredDirectories}) {
-        my $ignoreFiles = $self->{generator}->buildElement('ignoreFiles', undef, $projectFiles);
+        my $ignoreFiles = $self->{generator}->buildElement((name => 'ignoreFiles', parent =>  $projectFiles));
 
         foreach my $path (@{$self->{ignoredDirectories}}) {
-            $self->{generator}->buildElement('directory', undef, $ignoreFiles, (
+            $self->{generator}->buildElement((name => 'directory', parent => $ignoreFiles, attributes => {
                 'name' => $path,
-            ));
+            }));
         }
     }
 
     if (defined $self->{plugins}) {
-        my $plugins = $self->{generator}->buildElement('plugins', undef, $psalm);
+        my $plugins = $self->{generator}->buildElement((name => 'plugins', parent => $psalm));
 
         foreach my $plugin (@{$self->{plugins}}) {
-            $self->{generator}->buildElement('pluginClass', undef, $plugins, (
+            $self->{generator}->buildElement((name => 'pluginClass', parent => $plugins, attributes => {
                 'class' => $plugin,
-            ));
+            }));
         }
     }
 
