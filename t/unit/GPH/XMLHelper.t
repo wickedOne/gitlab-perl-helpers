@@ -54,7 +54,8 @@ describe 'test element' => sub {
             name       => 'foo',
             value      => 'bar',
             attributes => {
-                'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
+                'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
+                'foo'       => undef
             }
         );
         $expected_xml = '<foo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">bar</foo>';
