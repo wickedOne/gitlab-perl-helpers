@@ -5,6 +5,7 @@
 #
 # Revisions:    2023-09-03 - created
 #               2024-02-10 - namespaced module, bugfixes and unit tests
+#               2024-02-12 - constructor now requires named arguments
 #------------------------------------------------------------------------------
 
 package GPH::XMLHelper;
@@ -33,32 +34,36 @@ sub new {
 #------------------------------------------------------------------------------
 # Build element
 #
-# Inputs:  0) string: name of the element
-#          1) mixed: value of the element
-#          2) LibXML::Element object: parent element
-#          3) list: element attributes
+# Inputs:  name       => (string) name of the element
+#          value      => (string) value of the element
+#          parent     => (LibXML::Element object) parent element
+#          attributes => (hash) element attributes
 #
 # Returns: LibXML::Element object
 sub buildElement {
-  my ($self, $name, $value, $parent, %attributes) = @_;
+    my ($self, %args) = @_;
 
-  my $element = $self->{dom}->createElement($name);
+    (exists($args{name})) or die "$!";
 
-  foreach my $key (sort keys %attributes) {
-    if (defined $attributes{$key}) {
-        $element->{$key} = $attributes{$key};
+    my $element = $self->{dom}->createElement($args{name});
+
+    if (exists($args{attributes})) {
+        foreach my $key (sort keys %{$args{attributes}}) {
+            if (defined $args{attributes}{$key}) {
+                $element->{$key} = $args{attributes}{$key};
+            }
+        }
     }
-  }
 
-  if (defined $value) {
-    $element->appendText($value);
-  }
+    if (defined $args{value}) {
+        $element->appendText($args{value});
+    }
 
-  if (defined $parent) {
-    $parent->appendChild($element);
-  }
+    if (defined $args{parent}) {
+        $args{parent}->appendChild($element);
+    }
 
-  return $element;
+    return $element;
 }
 
 #------------------------------------------------------------------------------
