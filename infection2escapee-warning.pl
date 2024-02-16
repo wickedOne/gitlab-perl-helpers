@@ -9,4 +9,4 @@ use GPH::Infection;
 
 my $infection = GPH::Infection->new((msi => $ENV{'MIN_MSI'}, covered => $ENV{'MIN_COVERED_MSI'}));
 
-exit $infection->Parse();
+exit $infection->parse();

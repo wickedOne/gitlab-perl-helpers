@@ -65,8 +65,8 @@ though configurable in the `stdin2codeowner-filter.pl` file, for now no plans to
 >     MIN_MSI: '95.00'
 >   before_script:
 >     - composer dump-autoload --optimize --ignore-platform-reqs
->     - git fetch --depth=1 origin $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
->     - export INFECTION_FILTER=$(git diff origin/$CI_MERGE_REQUEST_TARGET_BRANCH_NAME --diff-filter=AM --name-only | .stdin2codeowner-filter.pl)
+>     - git fetch --depth=1 origin $CI_MERGE_REQUEST_DIFF_BASE_SHA
+>     - export INFECTION_FILTER=$(git diff $CI_MERGE_REQUEST_DIFF_BASE_SHA..$CI_COMMIT_SHA --diff-filter=AMR --name-only -- '***.php' | .stdin2codeowner-filter.pl)
 >   script:
 >     - ./vendor/bin/infection -j$(nproc) --filter=$INFECTION_FILTER --min-msi=$MIN_MSI --min-covered-msi=$MIN_COVERED_MSI --coverage=./coverage --skip-initial-tests
 > ```

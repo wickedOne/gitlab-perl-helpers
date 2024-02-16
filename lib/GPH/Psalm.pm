@@ -38,14 +38,18 @@ sub new {
 
     (exists($args{level}) and exists($args{paths})) or die "$!";
 
+    # prevent empty arrays
+    my $ignored = ((exists($args{ignoredDirectories}) and scalar(@{$args{ignoredDirectories}}) != 0) ? $args{ignoredDirectories} : undef);
+    my $plugins = ((exists($args{plugins}) and scalar(@{$args{plugins}}) != 0) ? $args{plugins} : undef);
+
     my $self = {
         level              => $args{level},
         paths              => $args{paths},
-        ignoredDirectories => $args{ignoredDirectories} || undef,
+        ignoredDirectories => $ignored,
         baseline           => $args{baseline} || undef,
         baselineCheck      => $args{baselineCheck} || 'true',
         cacheDir           => $args{cacheDir} || './psalm',
-        plugins            => $args{plugins} || undef,
+        plugins            => $plugins,
         generator          => GPH::XMLHelper->new(),
     };
 
@@ -60,6 +64,7 @@ sub new {
 # Returns: psalm.xml config file string
 sub getConfig {
     my $self = shift;
+    my $type;
 
     my $psalm = $self->{generator}->buildElement((name => 'psalm', attributes => {
         'resolveFromConfigFile'   => 'true',
@@ -76,7 +81,9 @@ sub getConfig {
     my $projectFiles = $self->{generator}->buildElement((name => 'projectFiles', parent => $psalm));
 
     foreach my $path (@{$self->{paths}}) {
-        $self->{generator}->buildElement((name => 'directory', parent => $projectFiles, attributes => {
+        $type = ($path =~ /.*\.[a-z]+$/) ? 'file' : 'directory';
+
+        $self->{generator}->buildElement((name => $type, parent => $projectFiles, attributes => {
             'name' => $path,
         }));
     }
@@ -85,7 +92,9 @@ sub getConfig {
         my $ignoreFiles = $self->{generator}->buildElement((name => 'ignoreFiles', parent =>  $projectFiles));
 
         foreach my $path (@{$self->{ignoredDirectories}}) {
-            $self->{generator}->buildElement((name => 'directory', parent => $ignoreFiles, attributes => {
+            $type = ($path =~ /.*\.[a-z]+$/) ? 'file' : 'directory';
+
+            $self->{generator}->buildElement((name => $type, parent => $ignoreFiles, attributes => {
                 'name' => $path,
             }));
         }
@@ -102,6 +111,7 @@ sub getConfig {
     }
 
     my $dom = $self->{generator}->getDom();
+
     $dom->setDocumentElement($psalm);
 
     return ($dom->toString(1));
@@ -121,6 +131,8 @@ sub getConfigWithIssueHandlers {
     my ($handlers) = $dom->findnodes('//*[local-name()="issueHandlers"]');
 
     foreach my $exclude ($blacklist) {
+        next if not defined $exclude;
+
         my ($remove) = $handlers->findnodes("//*[local-name()=\"${exclude}\"]");
 
         if (defined $remove) {
