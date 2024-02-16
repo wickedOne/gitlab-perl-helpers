@@ -30,10 +30,13 @@ sub new {
 
     (exists($args{level}) and exists($args{paths})) or die "$!";
 
+    # filter out empty arrays
+    my $excludes = ((exists($args{ignoredDirectories}) and scalar(@{$args{ignoredDirectories}}) != 0) ? $args{ignoredDirectories} : undef);
+
     my $self = {
         level              => $args{level},
         paths              => $args{paths},
-        ignoredDirectories => $args{ignoredDirectories} || undef,
+        ignoredDirectories => $excludes,
         baseline           => $args{baseline} || undef,
         cacheDir           => $args{cacheDir} || 'var',
         includes           => $args{includes} || undef,

@@ -27,14 +27,29 @@ describe 'configuration options' => sub {
     my ($expected_baseline, $expected_baselineCheck, $expected_ignoredDirectories, $expected_cacheDir, $expected_plugins);
 
     $level = 2;
-    @paths = qw[src/Service/PhraseTagService.php src/Command/AbstractPhraseKeyCommand.php];
-    @ignoredDirectories = qw{/ignored/};
-    @plugins =  qw{Psalm\SymfonyPsalmPlugin\Plugin};
+    @paths = ['src/Service/PhraseTagService.php', 'src/Command/AbstractPhraseKeyCommand.php'];
+    @ignoredDirectories = ['/ignored/'];
+    @plugins =  ['Psalm\SymfonyPsalmPlugin\Plugin'];
 
     case 'minimal options' => sub {
         %config = (
             level => 2,
             paths => \@paths,
+        );
+
+        $expected_baselineCheck = 'true';
+        $expected_cacheDir = './psalm';
+        $expected_baseline = undef;
+        $expected_ignoredDirectories = undef;
+        $expected_plugins = undef;
+    };
+
+    case 'config with empty arrays' => sub {
+        %config = (
+            level              => 2,
+            paths              => \@paths,
+            ignoredDirectories => [],
+            plugins            => [],
         );
 
         $expected_baselineCheck = 'true';
@@ -96,7 +111,7 @@ describe 'configuration options' => sub {
 };
 
 describe "class `$CLASS` config generation" => sub {
-    my @paths = qw{/src/Command /src/Service};
+    my @paths = qw{/src/Command /src/Service /src/DependencyInjection/Configuration.php};
     my %config = (
         level              => 2,
         paths              => \@paths,

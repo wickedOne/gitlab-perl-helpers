@@ -43,6 +43,22 @@ describe "class `$CLASS` instantiation values" => sub {
         $config_path = './t/share/PHPStan/phpstan-min.neon';
     };
 
+    case 'config with empty array for ignores' => sub {
+        %config = (
+            level              => 4,
+            paths              => \@paths,
+            ignoredDirectories => => [],
+        );
+
+        $expected_level = 4;
+        $expected_baseline = undef;
+        $expected_ignoredDirectories = undef;
+        $expected_cacheDir = 'var';
+        $expected_includes = undef;
+        $expected_threads = 4;
+        $config_path = './t/share/PHPStan/phpstan-min.neon';
+    };
+
     case 'maximum config' => sub {
         @ignoredDirectories = qw(/ignored/);
         $ignoredDirectories[1] = undef;

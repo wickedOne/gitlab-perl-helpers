@@ -13,7 +13,7 @@ my @excludes = split /,/, ($ENV{'EXCLUDE_PATHS'} || '');
 my %config = (
     owner      => $owner,
     codeowners => './CODEOWNERS',
-    excludes   => @excludes
+    excludes   => \@excludes,
 );
 
 my $gitlab = GPH::Gitlab->new(%config);

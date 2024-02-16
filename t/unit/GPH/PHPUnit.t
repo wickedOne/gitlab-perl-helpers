@@ -8,12 +8,11 @@ use Test2::V0 -target => 'GPH::PHPUnit';
 use Test2::Tools::Spec;
 
 use Data::Dumper;
-use Readonly;
 
-Readonly my $CODEOWNERS_FILE => './t/share/Gitlab/CODEOWNERS';
-Readonly my $CLASSMAP_FILE => './t/share/Composer/autoload_classmap.php';
-Readonly my $PHPUNIT_OUTPUT_FILE => './t/share/PHPUnit/phpunit-output.txt';
-Readonly my $PHPUNIT_BASELINE_FILE => './t/share/PHPUnit/phpunit-baseline.txt';
+use constant CODEOWNERS_FILE => './t/share/Gitlab/CODEOWNERS';
+use constant CLASSMAP_FILE => './t/share/Composer/autoload_classmap.php';
+use constant PHPUNIT_OUTPUT_FILE => './t/share/PHPUnit/phpunit-output.txt';
+use constant PHPUNIT_BASELINE_FILE => './t/share/PHPUnit/phpunit-baseline.txt';
 
 local $SIG{__WARN__} = sub {};
 
@@ -23,14 +22,14 @@ describe "class `$CLASS`" => sub {
     };
 
     tests 'dies without correct config' => sub {
-        ok(dies {$CLASS->new(('codeowners' => $CODEOWNERS_FILE, classmap => $CLASSMAP_FILE))}, 'died with missing owner option') or note($@);
-        ok(dies {$CLASS->new(('owner' => '@teams/alpha', classmap => $CLASSMAP_FILE))}, 'died with missing codeowners option') or note($@);
-        ok(dies {$CLASS->new(('owner' => '@teams/alpha', 'codeowners' => $CODEOWNERS_FILE))}, 'died with missing classmap option') or note($@);
-        ok(lives {$CLASS->new(('owner' => '@teams/alpha', 'codeowners' => $CODEOWNERS_FILE, classmap => $CLASSMAP_FILE))}, 'lives with mandatory config settings') or note($@);
+        ok(dies {$CLASS->new(('codeowners' => CODEOWNERS_FILE, classmap => CLASSMAP_FILE))}, 'died with missing owner option') or note($@);
+        ok(dies {$CLASS->new(('owner' => '@teams/alpha', classmap => CLASSMAP_FILE))}, 'died with missing codeowners option') or note($@);
+        ok(dies {$CLASS->new(('owner' => '@teams/alpha', 'codeowners' => CODEOWNERS_FILE))}, 'died with missing classmap option') or note($@);
+        ok(lives {$CLASS->new(('owner' => '@teams/alpha', 'codeowners' => CODEOWNERS_FILE, classmap => CLASSMAP_FILE))}, 'lives with mandatory config settings') or note($@);
     };
 
     tests "baseline file not found" => sub {
-        ok(dies{$CLASS->new((codeowners => $CODEOWNERS_FILE, owner =>'@teams/alpha', baseline => 'foo.txt'))}, 'died with baseline not found') or note ($@);
+        ok(dies{$CLASS->new((codeowners => CODEOWNERS_FILE, owner =>'@teams/alpha', baseline => 'foo.txt'))}, 'died with baseline not found') or note ($@);
     };
 };
 
@@ -41,8 +40,8 @@ describe 'configuration options' => sub {
     case 'minimal options' => sub {
         %config = (
             owner      => $owner,
-            classmap   => $CLASSMAP_FILE,
-            codeowners => $CODEOWNERS_FILE,
+            classmap   => CLASSMAP_FILE,
+            codeowners => CODEOWNERS_FILE,
         );
 
         $expected_threshold = 0.0;
@@ -52,11 +51,11 @@ describe 'configuration options' => sub {
     case 'maximal options' => sub {
         %config = (
             owner      => $owner,
-            classmap   => $CLASSMAP_FILE,
-            codeowners => $CODEOWNERS_FILE,
+            classmap   => CLASSMAP_FILE,
+            codeowners => CODEOWNERS_FILE,
             threshold  => 95.5,
-            excludes   => qw{.gitlab-ci.yml},
-            baseline   => $PHPUNIT_BASELINE_FILE
+            excludes   => ['.gitlab-ci.yml'],
+            baseline   => PHPUNIT_BASELINE_FILE
         );
 
         $expected_threshold = 95.5;
@@ -104,10 +103,10 @@ describe "parsing phpunit report output" => sub {
 
     %config = (
         owner      => '@teams/alpha',
-        classmap   => $CLASSMAP_FILE,
-        codeowners => $CODEOWNERS_FILE,
-        excludes   => qw{.gitlab-ci.yml},
-        baseline   => $PHPUNIT_BASELINE_FILE
+        classmap   => CLASSMAP_FILE,
+        codeowners => CODEOWNERS_FILE,
+        excludes   => ['.gitlab-ci.yml'],
+        baseline   => PHPUNIT_BASELINE_FILE
     );
 
     case 'failure' => sub {
@@ -126,7 +125,7 @@ describe "parsing phpunit report output" => sub {
         $exception = dies {
             $warnings = warns {
                 local *ARGV;
-                open *ARGV, '<', $PHPUNIT_OUTPUT_FILE or die "can't open ${PHPUNIT_OUTPUT_FILE}";
+                open *ARGV, '<', PHPUNIT_OUTPUT_FILE or die "can't open PHPUNIT_OUTPUT_FILE";
 
                 local *STDOUT;
                 open *STDOUT, '>', \$stdout;

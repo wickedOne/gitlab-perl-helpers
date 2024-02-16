@@ -31,7 +31,7 @@ sub new {
 
     # build excludes hash for quick lookup
     if (exists($args{excludes})) {
-        foreach my $item ($args{excludes}) {
+        foreach my $item (@{$args{excludes}}) {
             $excludeHash{$item} = 1;
         }
     }
@@ -44,8 +44,14 @@ sub new {
 
     for my $line (@lines) {
 
+        # skip section line. default codeowners not yet supported
+        next if $line =~  /[\[\]]/;
         # skip if line does not contain @
         next unless $line =~ /^.*\s\@[\w]+\/.*$/x;
+
+        # replace /**/* with a trailing forward slash
+        my $pat = quotemeta('/**/* ');
+        $line =~ s|$pat|/ |;
 
         my ($class_path, $owners) = split(' ', $line, 2);
 

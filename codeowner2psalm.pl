@@ -8,23 +8,27 @@ use lib dirname(__FILE__) . '/lib/';
 use GPH::Gitlab;
 use GPH::Psalm;
 
-use constant PSALM_CONFIG => './psalm.xml';
-
 my $owner = $ENV{'DEV_TEAM'} or die "please define owner in DEV_TEAM env var";
 my @excludes = split /,/, ($ENV{'EXCLUDE_PATHS'} || '');
 
-my $gitlab = GPH::Gitlab->new((owner => $owner, codeowners => './CODEOWNERS', excludes => @excludes));
+my %gitlabConfig = (
+    owner      => $owner,
+    codeowners => './CODEOWNERS',
+    excludes   => \@excludes,
+);
+
+my $gitlab = GPH::Gitlab->new(%gitlabConfig);
 
 my @ignored = split /,/, ($ENV{'PSALM_IGNORED_DIRS'} || '');
 my @plugins = split /,/, ($ENV{'PSALM_PLUGINS'} || '');
-my $clone = defined($ENV{'PSALM_CLONE_HANDLERS'}) ? $ENV{'PSALM_CLONE_HANDLERS'} : 1;
+my $clone = (defined($ENV{'PSALM_CLONE_HANDLERS'}) ? $ENV{'PSALM_CLONE_HANDLERS'} : 1);
 
 # merge ignored dirs with blacklist
-@ignored = (@ignored, $gitlab->getBlacklistPaths());
+@ignored = (@ignored, @{$gitlab->getBlacklistPaths()});
 
 my %config = (
     level              => $ENV{'PSALM_LEVEL'} || 4,
-    paths              => \$gitlab->getPaths(),
+    paths              => $gitlab->getPaths(),
     ignoredDirectories => \@ignored,
     baseline           => $ENV{'PSALM_BASELINE'},
     baselineCheck      => $ENV{'PSALM_BASELINE_CHECK'},
@@ -37,7 +41,7 @@ my $psalm = GPH::Psalm->new(%config);
 if ($clone eq 1) {
     my @blacklist = split /,/, ($ENV{'PSALM_EXCLUDE_HANDLERS'} || '');
 
-    print $psalm->getConfigWithIssueHandlers(PSALM_CONFIG, @blacklist);
+    print $psalm->getConfigWithIssueHandlers('./psalm.xml', @blacklist);
 }
 else {
     print $psalm->getConfig();

@@ -3,6 +3,7 @@
   <projectFiles>
     <directory name="/src/Command"/>
     <directory name="/src/Service"/>
+    <file name="/src/DependencyInjection/Configuration.php"/>
     <ignoreFiles>
       <directory name="vendor"/>
     </ignoreFiles>

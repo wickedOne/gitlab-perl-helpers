@@ -8,11 +8,10 @@ use Test2::V0 -target => 'GPH::Composer';
 use Test2::Tools::Spec;
 
 use Data::Dumper;
-use Readonly;
 
 local $SIG{__WARN__} = sub {};
 
-Readonly my $CLASSMAP_FILE => './t/share/Composer/autoload_classmap.php';
+use constant CLASSMAP_FILE => './t/share/Composer/autoload_classmap.php';
 
 describe "class `$CLASS`" => sub {
     tests 'it can be instantiated' => sub {
@@ -24,7 +23,7 @@ describe "class `$CLASS`" => sub {
 
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new((classmap => $CLASSMAP_FILE));
+                $object = $CLASS->new((classmap => CLASSMAP_FILE));
             };
         };
 
@@ -41,7 +40,7 @@ describe "class `$CLASS`" => sub {
 
     tests "mandatory config options" => sub {
         ok(dies{$CLASS->new(())}, 'died with missing classmap option') or note ($@);
-        ok(lives{$CLASS->new((classmap => $CLASSMAP_FILE))}, 'lived with mandatory options') or note ($@);
+        ok(lives{$CLASS->new((classmap => CLASSMAP_FILE))}, 'lived with mandatory options') or note ($@);
     };
 };
 
@@ -74,7 +73,7 @@ describe 'test matching' => sub {
 
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new((classmap => $CLASSMAP_FILE));
+                $object = $CLASS->new((classmap => CLASSMAP_FILE));
                 $result = $object->match($className, @paths);
             };
         };
