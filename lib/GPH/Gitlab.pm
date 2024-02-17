@@ -25,9 +25,35 @@ use warnings FATAL => 'all';
 # Returns: reference to Gitlab object
 sub new {
     my ($class, %args) = @_;
-    my (%codeowners, %excludeHash, %blacklist);
 
     (exists($args{owner}) and exists($args{codeowners})) or die "$!";
+
+    my $self = {
+        owner      => $args{owner},
+        file       => $args{codeowners},
+        codeowners => undef,
+        blacklist  => undef,
+    };
+
+    bless $self, $class;
+
+    return $self->parseCodeowners(%args);
+}
+
+#------------------------------------------------------------------------------
+# Parse codeowners file
+#
+# Inputs:  codeowners => (string) path to code owners file
+#          excludes   => (array) paths to exclude
+#
+# Returns: reference to Gitlab object
+sub parseCodeowners {
+    my ($self, %args) = @_;
+    my ($fh, %codeowners, %excludeHash, %blacklist);
+
+    open $fh, '<', $args{codeowners} or die "unable to open codeowners file: $!";
+    my @lines = <$fh>;
+    close($fh);
 
     # build excludes hash for quick lookup
     if (exists($args{excludes})) {
@@ -36,19 +62,11 @@ sub new {
         }
     }
 
-    open(my $fh, '<', $args{codeowners}) or die "unable to open codeowners file, initialization failed $!";
-
-    my @lines = <$fh>;
-
-    close($fh);
-
     for my $line (@lines) {
-
         # skip section line. default codeowners not yet supported
-        next if $line =~  /[\[\]]/;
+        next if $line =~ /[\[\]]/;
         # skip if line does not contain @
         next unless $line =~ /^.*\s\@[\w]+\/.*$/x;
-
         # replace /**/* with a trailing forward slash
         my $pat = quotemeta('/**/* ');
         $line =~ s|$pat|/ |;
@@ -67,25 +85,20 @@ sub new {
             }
 
             push(@{$codeowners{$1}}, $class_path);
-        }
 
-        # check whether less specific path is already defined and add it to the blacklist
-        foreach my $key (keys %codeowners) {
-            foreach my $defined (@{$codeowners{$key}}) {
-                if ($class_path =~ $defined and $class_path ne $defined) {
-                    push(@{$blacklist{$key}}, $class_path);
+            # check whether less specific path is already defined and add it to the blacklist
+            foreach my $key (keys %codeowners) {
+                foreach my $defined (@{$codeowners{$key}}) {
+                    if ($class_path =~ $defined and $class_path ne $defined) {
+                        push(@{$blacklist{$key}}, $class_path);
+                    }
                 }
             }
         }
     }
 
-    my $self = {
-        owner      => $args{owner},
-        codeowners => \%codeowners,
-        blacklist  => \%blacklist,
-    };
-
-    bless $self, $class;
+    $self->{codeowners} = \%codeowners;
+    $self->{blacklist} = \%blacklist;
 
     return $self;
 }
