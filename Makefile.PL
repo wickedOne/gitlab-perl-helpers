@@ -25,7 +25,7 @@ WriteMakefile(
         "File::Temp"         => 0,
     },
     'test'             => {
-        TESTS => 't/unit/GPH/*.t t/unit/GPH/*/*.t'
+        TESTS => 't/unit/GPH/*.t t/unit/GPH/*/*.t t/functional/*.t'
     }
 );
 
