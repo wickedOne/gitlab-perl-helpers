@@ -16,11 +16,6 @@ the following environment variable is used by the coverage2codeowner script
 - `MIN_COVERAGE` (optional): minimum coverage required for the job to succeed. defaults to 0.1
 - `PHPUNIT_BASELINE` (optional): filepath of file containing paths to files and / or directories which are within the defined code space, but should be ignored while calculating coverage statistics.
 
-### assumptions
-
-this script assumes the presence of composer at the usual location and the CODEOWNERS file in the root directory of you project.
-though both paths are configurable in the `coverage2codeowner.pl` file, for now no plans to make that configurable or accept them as input parameters.
-
 > [!CAUTION]    
 > the `GPH::Composer.pm` module requires either an optimised or an authoritative classmap file so make sure to generate one of those in your configuration (see example below).
 

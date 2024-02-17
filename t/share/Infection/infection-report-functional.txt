@@ -1,0 +1,17 @@
+121 mutations were generated:
+     121 mutants were killed
+       0 mutants were configured to be ignored
+       0 mutants were not covered by tests
+       3 covered mutants were not detected
+       0 errors were encountered
+       0 syntax errors were encountered
+       0 time outs were encountered
+       0 mutants required more time than configured
+
+Metrics:
+         Mutation Score Indicator (MSI): 95%
+         Mutation Code Coverage: 100%
+         Covered Code MSI: 95%
+
+
+[warning] even though MSI is within allowed boundaries 3 mutants were not detected. please improve your tests!

@@ -9,10 +9,11 @@ use GPH::Gitlab;
 
 my $owner = $ENV{'DEV_TEAM'} or die "please define owner in DEV_TEAM env var";
 my @excludes = split /,/, ($ENV{'EXCLUDE_PATHS'} || '');
+my $codeonwers = $ENV{'CODEOWNERS'} || './CODEOWNERS';
 
 my %config = (
     owner      => $owner,
-    codeowners => './CODEOWNERS',
+    codeowners => $codeonwers,
     excludes   => \@excludes,
 );
 
