@@ -10,10 +10,11 @@ use GPH::Psalm;
 
 my $owner = $ENV{'DEV_TEAM'} or die "please define owner in DEV_TEAM env var";
 my @excludes = split /,/, ($ENV{'EXCLUDE_PATHS'} || '');
+my $codeonwers = $ENV{'CODEOWNERS'} || './CODEOWNERS';
 
 my %gitlabConfig = (
     owner      => $owner,
-    codeowners => './CODEOWNERS',
+    codeowners => $codeonwers,
     excludes   => \@excludes,
 );
 
@@ -40,8 +41,9 @@ my $psalm = GPH::Psalm->new(%config);
 
 if ($clone eq 1) {
     my @blacklist = split /,/, ($ENV{'PSALM_EXCLUDE_HANDLERS'} || '');
+    my $base = $ENV{'PSALM_BASE_CONFIG'} || './psalm.xml';
 
-    print $psalm->getConfigWithIssueHandlers('./psalm.xml', @blacklist);
+    print $psalm->getConfigWithIssueHandlers($base, @blacklist);
 }
 else {
     print $psalm->getConfig();

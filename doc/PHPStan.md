@@ -11,10 +11,7 @@ the following environment variables are used by the codeowner2phpstan script
 - `PHPSTAN_IGNORED_DIRS`: (optional) directories to ignore
 - `PHPSTAN_INCLUDES`: (optional) comma seperated list of files to include
 - `PHPSTAN_THREADS`: (optional) number of threads to use (defaults to `4`)
-- 
-### assumptions
 
-this script assumes the presence of the CODEOWNERS file in the root directory of you project.
 
 ### example config
 

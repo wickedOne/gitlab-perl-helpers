@@ -1,0 +1,52 @@
+PHPUnit 10.5.10 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.2.8 with Xdebug 3.2.1
+Configuration: phpunit.xml.dist
+
+.............R.................                                   31 / 31 (100%)
+
+Time: 00:00.681, Memory: 18.00 MB
+
+There was 1 risky test:
+
+1) WickedOne\PhraseTagBundle\Tests\Unit\Command\PhraseKeyUntagCommandTest::testTagProviderException
+This test did not perform any assertions
+
+/tests/Unit/Command/PhraseKeyUntagCommandTest.php:59
+
+OK, but there were issues!
+Tests: 31, Assertions: 101, Risky: 1.
+
+Generating code coverage report in Cobertura XML format ... done [00:00.009]
+
+
+Code Coverage Report:      
+  2024-02-09 08:43:00      
+                           
+ Summary:                  
+  Classes: 75.00% (6/8)    
+  Methods: 91.67% (22/24)  
+  Lines:   97.39% (149/153)
+
+WickedOne\PhraseTagBundle\Command\AbstractPhraseKeyCommand
+  Methods: 100.00% ( 4/ 4)   Lines: 100.00% ( 30/ 30)
+WickedOne\PhraseTagBundle\Command\PhraseKeyTagCommand
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 13/ 13)
+WickedOne\PhraseTagBundle\Command\Config\ConfigPhraseKeyCommand
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% ( 13/ 13)
+WickedOne\PhraseTagBundle\Command\PhraseKeyUntagCommand
+  Methods:  50.00% ( 1/ 2)   Lines:  76.92% ( 10/ 13)
+WickedOne\PhraseTagBundle\DependencyInjection\Configuration
+  Methods: 100.00% ( 2/ 2)   Lines: 100.00% (  9/  9)
+WickedOne\PhraseTagBundle\DependencyInjection\WickedOnePhraseTagExtension
+  Methods: 100.00% ( 5/ 5)   Lines: 100.00% ( 20/ 20)
+WickedOne\PhraseTagBundle\Service\PhraseTagService
+  Methods:  80.00% ( 4/ 5)   Lines:  97.96% ( 48/ 49)
+WickedOne\PhraseTagBundle\Service\PhraseTaggerFactory
+  Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 18/ 18)
+WickedOne\PhraseTagBundle\Service\Provider\SomethingProvider
+  Methods:  66.66% ( 2/ 3)   Lines:  80.00% (  8/ 10)
+WickedOne\PhraseTagBundle\WickedOnePhraseTagBundle
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  1/  1)
+
+Generating code coverage report in PHPUnit XML format ... done [00:00.123]

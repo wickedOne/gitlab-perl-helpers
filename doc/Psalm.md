@@ -2,16 +2,6 @@
 
 `codeowner2psalm.pl` script generates a psalm config based on the paths defined in your `CODEOWNERS` file.
 
-### assumptions
-
-this script assumes the presence of the CODEOWNERS file in the root directory of you project.
-
-### global variables
-
-the following environment variables are used by all scripts
-- `DEV_TEAM`: owner as defined in the `CODEOWNERS` file
-- `EXCLUDE_PATHS`: (optional): comma seperated list of paths to exclude while defined in the `CODEOWNERS` file for owner `DEV_TEAM`. defaults to empty string.
-
 ### variables
 
 the following environment variables are used by the codeowner2psalm script

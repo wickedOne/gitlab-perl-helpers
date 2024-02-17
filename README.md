@@ -14,6 +14,7 @@ these scripts rely on a couple of environment variables.
 the following environment variables are used by all scripts
 - `DEV_TEAM`: owner as defined in the `CODEOWNERS` file
 - `EXCLUDE_PATHS`: (optional): comma seperated list of paths to exclude while defined in the `CODEOWNERS` file for owner `DEV_TEAM`. defaults to empty string.
+- `CODEOWNERS`: (optional): path to codeowners file, defaults to `./CODEOWNERS`
 
 ## details
 

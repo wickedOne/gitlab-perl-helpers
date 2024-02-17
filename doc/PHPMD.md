@@ -7,12 +7,6 @@ use `codeowner2phpmd.pl` this script generates a phpmd config which currently on
 the following environment variable is used by the codeowner2phpmd script
 - `CYCLO_LEVEL`: cyclomatic complexity threshold. defaults to 10
 
-### global variables
-
-the following environment variables are used by all scripts
-- `DEV_TEAM`: owner as defined in the `CODEOWNERS` file
-- `EXCLUDE_PATHS`: (optional): comma seperated list of paths to exclude while defined in the `CODEOWNERS` file for owner `DEV_TEAM`. defaults to empty string.
-
 ### example config
 
 > gitlab-ci-yml

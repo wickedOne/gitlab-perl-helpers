@@ -30,6 +30,7 @@ describe "class `$CLASS`" => sub {
 
     tests "baseline file not found" => sub {
         ok(dies{$CLASS->new((codeowners => CODEOWNERS_FILE, owner =>'@teams/alpha', baseline => 'foo.txt'))}, 'died with baseline not found') or note ($@);
+        ok(lives{$CLASS->new((codeowners => CODEOWNERS_FILE, owner =>'@teams/alpha', classmap => CLASSMAP_FILE, baseline => PHPUNIT_BASELINE_FILE))}, 'lives with correct baseline') or note ($@);
     };
 };
 

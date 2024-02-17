@@ -1,0 +1,9 @@
+[alpha]
+/src/Command/**/* @teams/alpha
+/src/Service/ @teams/alpha @#!$%^
+.gitlab-ci.yml @teams/alpha
+
+[beta]
+/src/Command/Config/ConfigPhraseKeyCommand.php @teams/beta
+/src/DependencyInjection/ @teams/beta
+.gitlab-ci.yml @teams/beta
