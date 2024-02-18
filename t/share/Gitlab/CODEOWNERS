@@ -1,9 +1,13 @@
+# Lines that start with `#` are ignored.
 [alpha]
 /src/Command/**/* @teams/alpha
-/src/Service/ @teams/alpha @#!$%^
-.gitlab-ci.yml @teams/alpha
+/src/Service/ @teams/alpha john@doe.com
+.gitlab-ci.yml @teams/alpha henkie
 
-[beta]
-/src/Command/Config/ConfigPhraseKeyCommand.php @teams/beta
-/src/DependencyInjection/ @teams/beta
-.gitlab-ci.yml @teams/beta
+[beta] @teams/beta
+/src/Command/Config/ConfigPhraseKeyCommand.php
+/src/DependencyInjection/
+.gitlab-ci.yml
+
+^[gamma][3] @teams/gamma
+/tests/Unit/Service/

@@ -15,6 +15,8 @@ package GPH::Gitlab;
 use strict;
 use warnings FATAL => 'all';
 
+use Data::Dumper;
+
 #------------------------------------------------------------------------------
 # Construct new class
 #
@@ -49,7 +51,7 @@ sub new {
 # Returns: reference to Gitlab object
 sub parseCodeowners {
     my ($self, %args) = @_;
-    my ($fh, %codeowners, %excludeHash, %blacklist);
+    my ($fh, %excludes, $default_owners);
 
     open $fh, '<', $args{codeowners} or die "unable to open codeowners file: $!";
     my @lines = <$fh>;
@@ -58,49 +60,77 @@ sub parseCodeowners {
     # build excludes hash for quick lookup
     if (exists($args{excludes})) {
         foreach my $item (@{$args{excludes}}) {
-            $excludeHash{$item} = 1;
+            $excludes{$item} = 1;
         }
     }
 
-    for my $line (@lines) {
-        # skip section line. default codeowners not yet supported
-        next if $line =~ /[\[\]]/;
-        # skip if line does not contain @
-        next unless $line =~ /^.*\s\@[\w]+\/.*$/x;
-        # replace /**/* with a trailing forward slash
-        my $pat = quotemeta('/**/* ');
-        $line =~ s|$pat|/ |;
+    foreach (@lines) {
+        next if $_ =~ /^#.*/ or $_ =~ /^[\s]?$/;
+        my $line = $self->sanitise($_);
 
-        my ($class_path, $owners) = split(' ', $line, 2);
+        if ($line =~ /\]/) {
+            $default_owners = ($line =~ /^[\^]?\[[^\]]+\](?:[\[0-9\]]{0,}) (.*)$/) ? $1 : undef;
 
-        # skip if path is excluded
-        next if exists $excludeHash{$class_path};
+            next;
+        }
 
-        foreach (split(' ', $owners)) {
-            next unless /(\@[\w\-\/]{0,})$/x;
+        my ($class_path, $owners) = split(/\s/, $line, 2);
 
-            if (not exists $codeowners{$1}) {
-                $codeowners{$1} = [];
-                $blacklist{$1} = [];
+        next if exists $excludes{$class_path};
+
+        $owners = $owners || $default_owners;
+
+        next unless defined $owners;
+
+        foreach my $owner (split(/\s/, $owners)) {
+            next unless $owner =~ /@/;
+            if (not exists $self->{codeowners}{$owner}) {
+                $self->{codeowners}{$owner} = [];
+                $self->{blacklist}{$owner} = [];
             }
 
-            push(@{$codeowners{$1}}, $class_path);
+            push(@{$self->{codeowners}{$owner}}, $class_path);
 
-            # check whether less specific path is already defined and add it to the blacklist
-            foreach my $key (keys %codeowners) {
-                foreach my $defined (@{$codeowners{$key}}) {
-                    if ($class_path =~ $defined and $class_path ne $defined) {
-                        push(@{$blacklist{$key}}, $class_path);
-                    }
-                }
+            $self->blacklist($class_path);
+        }
+    }
+
+    return ($self);
+}
+
+#------------------------------------------------------------------------------
+# Check whether less specific path is already defined and add it to the blacklist
+#
+# Inputs:  class_path => (string) path to check and blacklist
+#
+# Returns: reference to Gitlab object
+sub blacklist {
+    my ($self, $class_path) = @_;
+
+    foreach my $owner (keys %{$self->{codeowners}}) {
+        foreach my $path (@{$self->{codeowners}{$owner}}) {
+            if ($class_path =~ $path and $class_path ne $path) {
+                push(@{$self->{blacklist}{$owner}}, $class_path);
             }
         }
     }
 
-    $self->{codeowners} = \%codeowners;
-    $self->{blacklist} = \%blacklist;
+    return ($self);
+}
 
-    return $self;
+#------------------------------------------------------------------------------
+# Replace /**/* with a trailing forward slash
+#
+# Inputs:  line => (string) line to sanitise
+#
+# Returns: string
+sub sanitise {
+    my ($self, $line) = @_;
+
+    my $pat = quotemeta('/**/* ');
+    $line =~ s|$pat|/ |;
+
+    return ($line);
 }
 
 #------------------------------------------------------------------------------
