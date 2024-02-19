@@ -9,6 +9,7 @@
 #               2023-12-23 - added blacklist for more specific path definition
 #               2024-02-10 - namespaced module, bugfixes and unit tests
 #               2024-02-11 - constructor now requires named arguments
+#               2024-02-18 - added support for default codeowners
 #------------------------------------------------------------------------------
 package GPH::Gitlab;
 

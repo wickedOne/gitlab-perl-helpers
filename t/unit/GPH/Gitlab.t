@@ -11,8 +11,6 @@ use Data::Dumper;
 
 use constant CODEOWNERS_FILE => './t/share/Gitlab/CODEOWNERS';
 
-local $SIG{__WARN__} = sub {};
-
 describe "class `$CLASS`" => sub {
     my %config = (
         codeowners => CODEOWNERS_FILE,
@@ -68,7 +66,7 @@ describe "class `$CLASS`" => sub {
                 item '/src/Service/';
                 end;
             },
-                'GetPaths call correct'
+            'GetPaths call correct'
         );
 
         is($object->getBlacklistPaths(),
@@ -76,7 +74,7 @@ describe "class `$CLASS`" => sub {
                 item '/src/Command/Config/ConfigPhraseKeyCommand.php';
                 end;
             },
-                'GetBlacklistPaths call correct'
+            'GetBlacklistPaths call correct'
         );
 
         is($object->getCommaSeparatedPathList(), '/src/Command/,/src/Service/', 'GetCommaSeparatedPathList call correct');
@@ -90,7 +88,7 @@ describe "class `$CLASS`" => sub {
                 item '/src/Command/';
                 end;
             },
-                'Intersect call correct'
+            'Intersect call correct'
         );
 
         is($object->match('/src/Service/'), 1, 'Match call match correct');
@@ -102,21 +100,30 @@ describe "class `$CLASS`" => sub {
 };
 
 describe 'test codeowners syntax' => sub {
-    my ($object, %config, $owner, $expected_paths, $exception, $warnings);
+    my ($object, %config, $owner, $expected_paths, $expected_blacklist, $exception, $warnings);
 
     case 'section with default owner' => sub {
         $owner = '@teams/beta';
         $expected_paths = [ '/src/Command/Config/ConfigPhraseKeyCommand.php', '/src/DependencyInjection/' ];
+        $expected_blacklist = [];
     };
 
     case 'optional section with default owner and required approvals' => sub {
         $owner = '@teams/gamma';
         $expected_paths = [ '/tests/Unit/Service/' ];
+        $expected_blacklist = [];
     };
 
     case 'owner with email' => sub {
         $owner = 'john@doe.com';
         $expected_paths = [ '/src/Service/' ];
+        $expected_blacklist = [];
+    };
+
+    case 'non defined owner' => sub {
+        $owner = 'jane@doe.com';
+        $expected_paths = [ ];
+        $expected_blacklist = [];
     };
 
     tests 'module get paths' => sub {
@@ -135,6 +142,7 @@ describe 'test codeowners syntax' => sub {
         is($exception, undef, 'no exception thrown');
         is($warnings, 0, 'no warnings generated');
         is($object->getPaths(), $expected_paths, 'paths correct') or diag Dumper($object);
+        is($object->getBlacklistPaths(), $expected_blacklist, 'blacklist correct') or diag Dumper($object);
     };
 };
 

@@ -9,8 +9,6 @@ use Test2::Tools::Spec;
 
 use Data::Dumper;
 
-local $SIG{__WARN__} = sub {};
-
 describe "class `$CLASS`" => sub {
     tests 'it can be instantiated' => sub {
         can_ok($CLASS, 'new');

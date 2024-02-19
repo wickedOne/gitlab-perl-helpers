@@ -11,3 +11,6 @@
 
 ^[gamma][3] @teams/gamma
 /tests/Unit/Service/
+
+[delta]
+/tests/Unit/Command

@@ -131,7 +131,7 @@ sub getConfigWithIssueHandlers {
     my ($handlers) = $dom->findnodes('//*[local-name()="issueHandlers"]');
 
     foreach my $exclude ($blacklist) {
-        next if not defined $exclude;
+        next unless defined $exclude;
 
         my ($remove) = $handlers->findnodes("//*[local-name()=\"${exclude}\"]");
 

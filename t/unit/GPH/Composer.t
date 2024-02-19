@@ -9,8 +9,6 @@ use Test2::Tools::Spec;
 
 use Data::Dumper;
 
-local $SIG{__WARN__} = sub {};
-
 use constant CLASSMAP_FILE => './t/share/Composer/autoload_classmap.php';
 
 describe "class `$CLASS`" => sub {
@@ -35,12 +33,12 @@ describe "class `$CLASS`" => sub {
     };
 
     tests "classmap not found" => sub {
-        ok(dies{$CLASS->new((classmap => 'foo.php'))}, 'died with classmap not found') or note ($@);
+        ok(dies {$CLASS->new((classmap => 'foo.php'))}, 'died with classmap not found') or note($@);
     };
 
     tests "mandatory config options" => sub {
-        ok(dies{$CLASS->new(())}, 'died with missing classmap option') or note ($@);
-        ok(lives{$CLASS->new((classmap => CLASSMAP_FILE))}, 'lived with mandatory options') or note ($@);
+        ok(dies {$CLASS->new(())}, 'died with missing classmap option') or note($@);
+        ok(lives {$CLASS->new((classmap => CLASSMAP_FILE))}, 'lived with mandatory options') or note($@);
     };
 };
 
@@ -69,7 +67,7 @@ describe 'test matching' => sub {
     };
 
     tests 'match' => sub {
-        my ( $object, $exception, $warnings, $result );
+        my ($object, $exception, $warnings, $result);
 
         $exception = dies {
             $warnings = warns {

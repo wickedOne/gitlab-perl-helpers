@@ -9,8 +9,6 @@ use Test2::Tools::Spec;
 
 use Data::Dumper;
 
-local $SIG{__WARN__} = sub {};
-
 my %config = (
     owner     => '@teams/alpha',
     threshold => 95.01
@@ -22,8 +20,8 @@ describe "class `$CLASS`" => sub {
     };
 
     tests "mandatory config options" => sub {
-        ok(dies{$CLASS->new((threshold => '1'))}, 'died with missing owner option') or note ($@);
-        ok(lives{$CLASS->new((owner => '@teams/alpha'))}, 'lives with mandatory options') or note ($@);
+        ok(dies {$CLASS->new((threshold => '1'))}, 'died with missing owner option') or note($@);
+        ok(lives {$CLASS->new((owner => '@teams/alpha'))}, 'lives with mandatory options') or note($@);
     };
 };
 
@@ -72,6 +70,7 @@ describe 'class methods' => sub {
         'Methods:  80.00% ( 4/ 5)   Lines:  97.96% ( 48/ 49)',
         'Methods: 100.00% ( 3/ 3)   Lines: 100.00% ( 18/ 18)',
         'Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  1/  1)',
+        'Methods:   0.00% ( 0/ 0)   Lines:   0.00% (  0/  0)',
     );
 
     tests 'test add method' => sub {
@@ -156,13 +155,18 @@ describe "class method" => sub {
     my ($object, $exception, $warnings, $threshold, $expected_footer);
 
     case "coverage higher than threshold" => sub {
-        $threshold = 95.0;
+        $threshold = '95.0';
         $expected_footer = qr{! \[NOTE\] Your coverage is [0-9]+\.[0-9]{2}% percentage points over the required coverage};
     };
 
     case "coverage lower than threshold" => sub {
-        $threshold = 100.0;
+        $threshold = '100.0';
         $expected_footer = qr{! \[FAILED\] Your coverage is [0-9]+\.[0-9]{2}% percentage points under the required coverage};
+    };
+
+    case "coverage equal to threshold" => sub {
+        $threshold = '97.96';
+        $expected_footer = '';
     };
 
     tests "test footer method" => sub {
@@ -177,7 +181,7 @@ describe "class method" => sub {
         is($exception, undef, 'no exception thrown');
         is($warnings, 0, 'no warnings generated');
 
-        like($object->footer(), $expected_footer, 'footer as expected');
+        like($object->footer(), $expected_footer, 'footer as expected', Dumper($object));
     };
 };
 

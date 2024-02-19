@@ -8,8 +8,6 @@ use Test2::V0 -target => 'GPH::XMLHelper';
 use Test2::Tools::Spec;
 use Data::Dumper;
 
-local $SIG{__WARN__} = sub {};
-
 describe "class `$CLASS`" => sub {
     tests 'it can be instantiated' => sub {
         can_ok($CLASS, 'new');
@@ -97,41 +95,43 @@ describe 'test element' => sub {
     };
 };
 
-describe 'test paren element' => sub {
+describe 'test parent element' => sub {
     my ($object, $dom, $element, $exception, $warnings);
 
-    $exception = dies {
-        $warnings = warns {
-            $object = $CLASS->new();
-            $element = $object->buildElement((
-                name       => 'foo',
-                attributes => {
-                    'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
-                }
-            ));
+    tests 'element generation' => sub {
+        $exception = dies {
+            $warnings = warns {
+                $object = $CLASS->new();
+                $element = $object->buildElement((
+                    name       => 'foo',
+                    attributes => {
+                        'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance'
+                    }
+                ));
 
-            $object->buildElement((
-                name   => 'bar',
-                parent => $element,
-                value  => 'baz',
-            ));
+                $object->buildElement((
+                    name   => 'bar',
+                    parent => $element,
+                    value  => 'baz',
+                ));
 
-            $dom = $object->getDom();
-            $dom->setDocumentElement($element);
+                $dom = $object->getDom();
+                $dom->setDocumentElement($element);
+            };
         };
-    };
 
-    is($exception, undef, 'no exception thrown');
-    is($warnings, 0, 'no warnings generated');
+        is($exception, undef, 'no exception thrown');
+        is($warnings, 0, 'no warnings generated');
 
-    is(
-        $dom->toString(),
-        '<?xml version="1.0" encoding="UTF-8"?>
+        is(
+            $dom->toString(),
+            '<?xml version="1.0" encoding="UTF-8"?>
 <foo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><bar>baz</bar></foo>
 ',
-        'parent child element as expected',
-        Dumper($dom->toString())
-    )
+            'parent child element as expected',
+            Dumper($dom->toString())
+        )
+    }
 };
 
 done_testing();
