@@ -5,6 +5,7 @@
 #
 # Revisions:    2024-02-10 - created
 #               2024-02-11 - constructor now requires named arguments
+#               2024-02-19 - fixed rounding bug
 #------------------------------------------------------------------------------
 package GPH::PHPUnit::Stats;
 
@@ -95,21 +96,22 @@ sub summary {
 # Returns: string
 sub footer {
     my $self = shift;
+    my $percentage = sprintf("%.2f", $self->{lines}->percentage());
 
-    if ($self->{lines}->percentage() > $self->{threshold}) {
+    if ($percentage > $self->{threshold}) {
         return(sprintf(
             "\n ! [NOTE] Your coverage is %.2f%% percentage points over the required coverage.\n !%sConsider increasing the required coverage percentage.\n",
             ($self->{lines}->percentage() - $self->{threshold}),
             ' ' x 8
-        ))
+        ));
     }
 
-    if ($self->{lines}->percentage() < $self->{threshold}) {
+    if ($percentage < $self->{threshold}) {
         return(sprintf(
             "\n ! [FAILED] Your coverage is %.2f%% percentage points under the required coverage.\n !%sPlease increase coverage by improving your tests.\n",
             ($self->{threshold} - $self->{lines}->percentage()),
             ' ' x 10
-        ))
+        ));
     }
 };
 

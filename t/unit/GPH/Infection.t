@@ -7,17 +7,15 @@ use warnings;
 use Test2::V0 -target => 'GPH::Infection';
 use Test2::Tools::Spec;
 
-local $SIG{__WARN__} = sub {};
-
 describe "class `$CLASS`" => sub {
     tests 'it can be instantiated' => sub {
         can_ok($CLASS, 'new');
     };
 
     tests "mandatory config options" => sub {
-        ok(dies{$CLASS->new((msi => '9.0'))}, 'died with missing covered') or note ($@);
-        ok(dies{$CLASS->new((covered => '9.0'))}, 'died with missing msi') or note ($@);
-        ok(lives{$CLASS->new((msi => '9.0', covered => '9.0'))}, 'lives with mandatory options') or note ($@);
+        ok(dies {$CLASS->new((msi => '9.0'))}, 'died with missing covered') or note($@);
+        ok(dies {$CLASS->new((covered => '9.0'))}, 'died with missing msi') or note($@);
+        ok(lives {$CLASS->new((msi => '9.0', covered => '9.0'))}, 'lives with mandatory options') or note($@);
     };
 };
 

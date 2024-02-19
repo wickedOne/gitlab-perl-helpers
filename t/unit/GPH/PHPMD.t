@@ -7,17 +7,15 @@ use warnings;
 use Test2::V0 -target => 'GPH::PHPMD';
 use Test2::Tools::Spec;
 
-local $SIG{__WARN__} = sub {};
-
 describe "class `$CLASS`" => sub {
     tests 'it can be instantiated' => sub {
         can_ok($CLASS, 'new');
     };
 
     tests "mandatory config options" => sub {
-        ok(dies{$CLASS->new((owner =>'@teams/alpha'))}, 'died with missing cyclo level option') or note ($@);
-        ok(dies{$CLASS->new((cyclo_level => 8))}, 'died with missing owner option') or note ($@);
-        ok(lives{$CLASS->new((owner =>'@teams/alpha', cyclo_level => 8))}, 'lived with mandatory options') or note ($@);
+        ok(dies {$CLASS->new((owner => '@teams/alpha'))}, 'died with missing cyclo level option') or note($@);
+        ok(dies {$CLASS->new((cyclo_level => 8))}, 'died with missing owner option') or note($@);
+        ok(lives {$CLASS->new((owner => '@teams/alpha', cyclo_level => 8))}, 'lived with mandatory options') or note($@);
     };
 
     tests 'instantation' => sub {
@@ -25,7 +23,7 @@ describe "class `$CLASS`" => sub {
 
         $exception = dies {
             $warnings = warns {
-                $object = $CLASS->new((owner =>'@teams/alpha', cyclo_level => 3));
+                $object = $CLASS->new((owner => '@teams/alpha', cyclo_level => 3));
             };
         };
 
@@ -49,11 +47,11 @@ describe "class `$CLASS`" => sub {
 
 describe "class `$CLASS` config generation" => sub {
     tests 'compare config contents' => sub {
-        my $object = $CLASS->new((owner =>'@teams/alpha', cyclo_level => 3));
+        my $object = $CLASS->new((owner => '@teams/alpha', cyclo_level => 3));
         my $config = $object->getConfig();
         my $mock;
 
-        open (my $fh, '<', './t/share/PHPMD/phpmd-ruleset.xml');
+        open(my $fh, '<', './t/share/PHPMD/phpmd-ruleset.xml');
         {
             local $/;
             $mock = <$fh>;

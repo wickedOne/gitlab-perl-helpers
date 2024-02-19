@@ -8,17 +8,15 @@ use Test2::V0 -target => 'GPH::Psalm';
 use Test2::Tools::Spec;
 use Data::Dumper;
 
-local $SIG{__WARN__} = sub {};
-
 describe "class `$CLASS`" => sub {
     tests 'it can be instantiated' => sub {
         can_ok($CLASS, 'new');
     };
 
     tests "mandatory config options" => sub {
-        ok(dies{$CLASS->new((level => '1'))}, 'died with missing paths') or note ($@);
-        ok(dies{$CLASS->new((paths => []))}, 'died with missing level') or note ($@);
-        ok(lives{$CLASS->new((level => '1', paths => []))}, 'lives with mandatory options') or note ($@);
+        ok(dies {$CLASS->new((level => '1'))}, 'died with missing paths') or note($@);
+        ok(dies {$CLASS->new((paths => []))}, 'died with missing level') or note($@);
+        ok(lives {$CLASS->new((level => '1', paths => []))}, 'lives with mandatory options') or note($@);
     };
 };
 
@@ -27,9 +25,9 @@ describe 'configuration options' => sub {
     my ($expected_baseline, $expected_baselineCheck, $expected_ignoredDirectories, $expected_cacheDir, $expected_plugins);
 
     $level = 2;
-    @paths = ['src/Service/PhraseTagService.php', 'src/Command/AbstractPhraseKeyCommand.php'];
-    @ignoredDirectories = ['/ignored/'];
-    @plugins =  ['Psalm\SymfonyPsalmPlugin\Plugin'];
+    @paths = [ 'src/Service/PhraseTagService.php', 'src/Command/AbstractPhraseKeyCommand.php' ];
+    @ignoredDirectories = [ '/ignored/' ];
+    @plugins = [ 'Psalm\SymfonyPsalmPlugin\Plugin' ];
 
     case 'minimal options' => sub {
         %config = (
@@ -115,11 +113,11 @@ describe "class `$CLASS` config generation" => sub {
     my %config = (
         level              => 2,
         paths              => \@paths,
-        ignoredDirectories => ['vendor'],
+        ignoredDirectories => [ 'vendor' ],
         baseline           => 'baselines/psalm-baseline.xml',
         baselineCheck      => 'true',
         cacheDir           => './psalm',
-        plugins            => ['Psalm\SymfonyPsalmPlugin\Plugin'],
+        plugins            => [ 'Psalm\SymfonyPsalmPlugin\Plugin' ],
     );
 
     my $object = $CLASS->new(%config);
@@ -128,7 +126,7 @@ describe "class `$CLASS` config generation" => sub {
         my $config = $object->getConfig();
         my $mock;
 
-        open (my $fh, '<', './t/share/Psalm/psalm.xml');
+        open(my $fh, '<', './t/share/Psalm/psalm.xml');
 
         local $/;
         $mock = <$fh>;
@@ -142,7 +140,7 @@ describe "class `$CLASS` config generation" => sub {
         my $config = $object->getConfigWithIssueHandlers('./t/share/Psalm/psalm-stub.xml', qw{MoreSpecificImplementedParamType NonExistingHandler});
         my $mock;
 
-        open (my $fh, '<', './t/share/Psalm/psalm-issue-handlers.xml');
+        open(my $fh, '<', './t/share/Psalm/psalm-issue-handlers.xml');
         {
             local $/;
             $mock = <$fh>;

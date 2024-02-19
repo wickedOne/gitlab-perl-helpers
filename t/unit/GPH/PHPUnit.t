@@ -14,8 +14,6 @@ use constant CLASSMAP_FILE => './t/share/Composer/autoload_classmap.php';
 use constant PHPUNIT_OUTPUT_FILE => './t/share/PHPUnit/phpunit-output.txt';
 use constant PHPUNIT_BASELINE_FILE => './t/share/PHPUnit/phpunit-baseline.txt';
 
-local $SIG{__WARN__} = sub {};
-
 describe "class `$CLASS`" => sub {
     tests 'it can be instantiated' => sub {
         can_ok($CLASS, 'new');
@@ -29,8 +27,8 @@ describe "class `$CLASS`" => sub {
     };
 
     tests "baseline file not found" => sub {
-        ok(dies{$CLASS->new((codeowners => CODEOWNERS_FILE, owner =>'@teams/alpha', baseline => 'foo.txt'))}, 'died with baseline not found') or note ($@);
-        ok(lives{$CLASS->new((codeowners => CODEOWNERS_FILE, owner =>'@teams/alpha', classmap => CLASSMAP_FILE, baseline => PHPUNIT_BASELINE_FILE))}, 'lives with correct baseline') or note ($@);
+        ok(dies {$CLASS->new((codeowners => CODEOWNERS_FILE, owner => '@teams/alpha', baseline => 'foo.txt'))}, 'died with baseline not found') or note($@);
+        ok(lives {$CLASS->new((codeowners => CODEOWNERS_FILE, owner => '@teams/alpha', classmap => CLASSMAP_FILE, baseline => PHPUNIT_BASELINE_FILE))}, 'lives with correct baseline') or note($@);
     };
 };
 
@@ -43,6 +41,7 @@ describe 'configuration options' => sub {
             owner      => $owner,
             classmap   => CLASSMAP_FILE,
             codeowners => CODEOWNERS_FILE,
+            baseline   => undef,
         );
 
         $expected_threshold = 0.0;
@@ -55,7 +54,7 @@ describe 'configuration options' => sub {
             classmap   => CLASSMAP_FILE,
             codeowners => CODEOWNERS_FILE,
             threshold  => 95.5,
-            excludes   => ['.gitlab-ci.yml'],
+            excludes   => [ '.gitlab-ci.yml' ],
             baseline   => PHPUNIT_BASELINE_FILE
         );
 
@@ -106,7 +105,7 @@ describe "parsing phpunit report output" => sub {
         owner      => '@teams/alpha',
         classmap   => CLASSMAP_FILE,
         codeowners => CODEOWNERS_FILE,
-        excludes   => ['.gitlab-ci.yml'],
+        excludes   => [ '.gitlab-ci.yml' ],
         baseline   => PHPUNIT_BASELINE_FILE
     );
 

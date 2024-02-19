@@ -53,7 +53,7 @@ sub new {
     bless $self, $class;
 
     if (exists($args{baseline}) and defined $args{baseline}) {
-        open(my $fh, '<', $args{baseline}) or die "unable to open phpunit baseline file $args{baseline} $!";
+        open my $fh, '<', $args{baseline} or die $!;
         my @lines = ();
 
         while (<$fh>) {

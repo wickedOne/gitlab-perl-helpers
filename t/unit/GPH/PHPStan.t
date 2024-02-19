@@ -8,17 +8,15 @@ use Test2::V0 -target => 'GPH::PHPStan';
 use Test2::Tools::Spec;
 use Data::Dumper;
 
-local $SIG{__WARN__} = sub {};
-
 describe "class `$CLASS`" => sub {
     tests 'it can be instantiated' => sub {
         can_ok($CLASS, 'new');
     };
 
     tests 'dies without correct config' => sub {
-        ok(dies{$CLASS->new(('level' => 4))}, 'died with paths missing') or note ($@);
-        ok(dies{$CLASS->new(('paths' => []))}, 'died with level missing') or note ($@);
-        ok(lives{$CLASS->new(('level' => 4, 'paths' => []))}, 'lives with mandatory config settings') or note ($@);
+        ok(dies {$CLASS->new(('level' => 4))}, 'died with paths missing') or note($@);
+        ok(dies {$CLASS->new(('paths' => []))}, 'died with level missing') or note($@);
+        ok(lives {$CLASS->new(('level' => 4, 'paths' => []))}, 'lives with mandatory config settings') or note($@);
     };
 };
 
@@ -41,6 +39,22 @@ describe "class `$CLASS` instantiation values" => sub {
         $expected_includes = undef;
         $expected_threads = 4;
         $config_path = './t/share/PHPStan/phpstan-min.neon';
+    };
+
+    case 'includes, no baseline' => sub {
+        %config = (
+            level    => 4,
+            paths    => \@paths,
+            includes => [ '/includes/' ],
+        );
+
+        $expected_level = 4;
+        $expected_baseline = undef;
+        $expected_ignoredDirectories = undef;
+        $expected_cacheDir = 'var';
+        $expected_includes = [ '/includes/' ];
+        $expected_threads = 4;
+        $config_path = './t/share/PHPStan/phpstan-includes.neon';
     };
 
     case 'config with empty array for ignores' => sub {
@@ -126,7 +140,7 @@ describe "class `$CLASS` instantiation values" => sub {
         is($exception, undef, 'no exception thrown', Dumper($object));
         is($warnings, 0, 'no warnings generated', Dumper($object));
 
-        open (my $fh, '<', $config_path);
+        open(my $fh, '<', $config_path);
         {
             local $/;
             $mock = <$fh>;
