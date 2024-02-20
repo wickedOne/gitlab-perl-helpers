@@ -1,14 +1,3 @@
-#------------------------------------------------------------------------------
-# File:         GPH::PHPMD.pm
-#
-# Description:  GPH::PHPMD related functions.
-#               for now only generates phpmd config file with cyclomatic complexity rule
-#
-# Revisions:    2023-07-05 - created
-#               2024-02-10 - namespaced module, bugfixes and unit tests
-#               2024-02-11 - constructor now requires named arguments
-#------------------------------------------------------------------------------
-
 package GPH::PHPMD;
 
 use strict;
@@ -17,13 +6,6 @@ use warnings FATAL => 'all';
 use XML::LibXML;
 use GPH::XMLHelper;
 
-#------------------------------------------------------------------------------
-# Construct new class
-#
-# Inputs:  owner       => (string) code owner
-#          cyclo_level => (int) maximum cyclomatic complexity level
-#
-# Returns: reference to GPH::PHPMD object
 sub new {
     my ($class, %args) = @_;
 
@@ -40,10 +22,6 @@ sub new {
     return $self;
 }
 
-#------------------------------------------------------------------------------
-# Get config
-#
-# Returns: ruleset.xml config file string
 sub getConfig {
     my $self = shift;
 
@@ -75,3 +53,56 @@ sub getConfig {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+GPH::PHPMD - generate custom configuration file for L<PHP Mess Detector|https://phpmd.org/>
+
+=head1 SYNOPSIS
+
+    use GPH::PHPMD;
+
+    my $phpmd = GPH::PHPMD->new((
+        owner       => '@teams/alpha',
+        cyclo_level => 5,
+    ));
+
+    print $phpmd->getConfig();
+
+=head1 METHODS
+
+=over 4
+
+=item C<< -E<gt>new(%args) >>
+
+the C<new> method creates a new GPH::PHPMD instance. it takes a hash of options, valid option keys include:
+
+=over
+
+=item owner B<(required)>
+
+code owner name
+
+=item cyclo_level B<(required)>
+
+cyclomatic complexity level
+
+=back
+
+=item C<< -E<gt>getConfig() >>
+
+returns configuration xml for PHPMD
+
+=back
+
+=head1 AUTHOR
+
+the GPH::PHPMD module was written by wicliff wolda <wicliff.wolda@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+this library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut

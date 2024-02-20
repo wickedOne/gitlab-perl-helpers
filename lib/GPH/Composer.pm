@@ -1,24 +1,8 @@
-#------------------------------------------------------------------------------
-# File:         GPH::Composer.pm
-#
-# Description:  composer related functions.
-#               for now only related to the composer classmap file
-#
-# Revisions:    2023-01-20 - created
-#               2024-02-10 - namespaced module, bugfixes and unit tests
-#               2024-02-11 - constructor now requires named arguments
-#------------------------------------------------------------------------------
 package GPH::Composer;
 
 use strict;
 use warnings FATAL => 'all';
 
-#------------------------------------------------------------------------------
-# Construct new class
-#
-# Inputs:  classmap => (string) path to code owners file
-#
-# Returns: reference to GPH::Composer object
 sub new {
     my ($class, %args) = @_;
 
@@ -33,21 +17,12 @@ sub new {
     return $self;
 }
 
-#------------------------------------------------------------------------------
-# Get classmap
-#
-# Returns: reference to classmap hash
 sub getClassMap {
     my $self = shift;
 
     return \$self->{classmap};
 }
 
-#------------------------------------------------------------------------------
-# Match.
-# check whether class name lives in code owners paths
-#
-# Returns: bool
 sub match {
     my ($self, $class, @paths) = @_;
 
@@ -62,10 +37,6 @@ sub match {
     return 0;
 }
 
-#------------------------------------------------------------------------------
-# Parse composer classmap with relevant paths (vendor dir is ignored)
-#
-# Returns: hash reference with ${classname} => $path 
 sub parseClassMap {
     my ($self, $path) = @_;
     my %classmap = ();
@@ -88,10 +59,6 @@ sub parseClassMap {
     return (\%classmap);
 }
 
-#------------------------------------------------------------------------------
-# cleanup leading & trailing spaces, escaped backslashes and quotes
-#
-# Returns: string
 sub strip {
     my ($line) = @_;
 
@@ -103,3 +70,63 @@ sub strip {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+GPH::Composer - parses and matches paths with a L<Composer|https://getcomposer.org/> classmap
+
+=head1 SYNOPSIS
+
+    use GPH::Composer;
+
+    my $composer = GPH::PHPMD->new((
+        classmap => './vendor/composer/autoload_classmap.php',
+    ));
+
+    print $composer->match('App\Service\Provider\FooProvider.php', ['/src/Service/Provider/']);
+
+=head1 METHODS
+
+=over 4
+
+=item C<< -E<gt>new(%args) >>
+
+the C<new> method creates a new GPH::Composer instance. it takes a hash of options, valid option keys include:
+
+=over
+
+=item classmap B<(required)>
+
+path to classmap file
+
+=back
+
+=item C<< -E<gt>match($class, @paths) >>
+
+matches a FQCN to the classmap limited by a collection of paths. returns C<1> on hit C<0> on miss.
+
+=item C<< -E<gt>getClassMap() >>
+
+returns reference to the parsed classmap hash.
+
+=item C<< -E<gt>parseClassMap() >> B<(internal)>
+
+parses the classmap file with relevant paths (vendor dir is ignored) and stores it in a hash map.
+
+=item C<< -E<gt>strip($line) >> B<(internal)>
+
+cleanup leading & trailing spaces, escaped backslashes and quotes.
+
+=back
+
+=head1 AUTHOR
+
+the GPH::Composer module was written by wicliff wolda <wicliff.wolda@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+this library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut

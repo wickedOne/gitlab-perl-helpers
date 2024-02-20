@@ -1,18 +1,3 @@
-#------------------------------------------------------------------------------
-# File:         GPH::Psalm.pm
-#
-# Description:  psalm related functions.
-#               for now only generate psalm config file
-#
-# Revisions:    2023-01-21 - created
-#               2023-02-18 - ready for general usage
-#               2023-07-05 - added baseline check config option
-#               2023-08-30 - added config handler clone method
-#               2023-09-03 - build config using lib xml
-#               2024-02-10 - namespaced module, bugfixes and unit tests
-#               2024-02-11 - constructor now requires named arguments
-#------------------------------------------------------------------------------
-
 package GPH::Psalm;
 
 use strict;
@@ -21,36 +6,24 @@ use warnings FATAL => 'all';
 use XML::LibXML;
 use GPH::XMLHelper;
 
-#------------------------------------------------------------------------------
-# Construct new class
-#
-# Inputs:  level              => (string) psalm error level
-#          paths              => (string) paths to analyse
-#          baseline           => (string) path to baseline file, defaults to undef
-#          baselineCheck      => (string) true|false used for setting the findUnusedBaselineEntry flag, defaults to true
-#          ignoredDirectories => (array) ignored directories
-#          cacheDir           => (string) path to cache directory, defaults to ./psalm
-#          plugins            => (array) used plugins
-#
-# Returns: reference to GPH::Psalm object
 sub new {
     my ($class, %args) = @_;
 
     (exists($args{level}) and exists($args{paths})) or die "$!";
 
     # prevent empty arrays
-    my $ignored = ((exists($args{ignoredDirectories}) and scalar(@{$args{ignoredDirectories}}) != 0) ? $args{ignoredDirectories} : undef);
-    my $plugins = ((exists($args{plugins}) and scalar(@{$args{plugins}}) != 0) ? $args{plugins} : undef);
+    my $ignored = ((defined($args{ignored_directories}) and scalar(@{$args{ignored_directories}}) != 0) ? $args{ignored_directories} : undef);
+    my $plugins = ((defined($args{plugins}) and scalar(@{$args{plugins}}) != 0) ? $args{plugins} : undef);
 
     my $self = {
-        level              => $args{level},
-        paths              => $args{paths},
-        ignoredDirectories => $ignored,
-        baseline           => $args{baseline} || undef,
-        baselineCheck      => $args{baselineCheck} || 'true',
-        cacheDir           => $args{cacheDir} || './psalm',
-        plugins            => $plugins,
-        generator          => GPH::XMLHelper->new(),
+        level               => $args{level},
+        paths               => $args{paths},
+        ignored_directories => $ignored,
+        baseline            => $args{baseline} || undef,
+        baseline_check      => $args{baseline_check} || 'true',
+        cache_dir           => $args{cache_dir} || './psalm',
+        plugins             => $plugins,
+        generator           => GPH::XMLHelper->new(),
     };
 
     bless $self, $class;
@@ -58,10 +31,6 @@ sub new {
     return $self;
 }
 
-#------------------------------------------------------------------------------
-# Get config
-#
-# Returns: psalm.xml config file string
 sub getConfig {
     my $self = shift;
     my $type;
@@ -71,9 +40,9 @@ sub getConfig {
         'xmlns:xsi'               => 'http://www.w3.org/2001/XMLSchema-instance',
         'xsi:schemaLocation'      => 'https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd',
         'errorLevel'              => $self->{level},
-        'cacheDirectory'          => $self->{cacheDir},
+        'cacheDirectory'          => $self->{cache_dir},
         'errorBaseline'           => $self->{baseline},
-        'findUnusedBaselineEntry' => $self->{baselineCheck},
+        'findUnusedBaselineEntry' => $self->{baseline_check},
     }));
 
     $psalm->setNamespace('https://getpsalm.org/schema/config');
@@ -81,18 +50,18 @@ sub getConfig {
     my $projectFiles = $self->{generator}->buildElement((name => 'projectFiles', parent => $psalm));
 
     foreach my $path (@{$self->{paths}}) {
-        $type = ($path =~ /.*\.[a-z]+$/) ? 'file' : 'directory';
+        $type = ($path =~ /.*\.[a-z]{2,}$/) ? 'file' : 'directory';
 
         $self->{generator}->buildElement((name => $type, parent => $projectFiles, attributes => {
             'name' => $path,
         }));
     }
 
-    if (defined $self->{ignoredDirectories}) {
-        my $ignoreFiles = $self->{generator}->buildElement((name => 'ignoreFiles', parent =>  $projectFiles));
+    if (defined $self->{ignored_directories}) {
+        my $ignoreFiles = $self->{generator}->buildElement((name => 'ignoreFiles', parent => $projectFiles));
 
-        foreach my $path (@{$self->{ignoredDirectories}}) {
-            $type = ($path =~ /.*\.[a-z]+$/) ? 'file' : 'directory';
+        foreach my $path (@{$self->{ignored_directories}}) {
+            $type = ($path =~ /.*\.[a-z]{2,}$/) ? 'file' : 'directory';
 
             $self->{generator}->buildElement((name => $type, parent => $ignoreFiles, attributes => {
                 'name' => $path,
@@ -117,11 +86,6 @@ sub getConfig {
     return ($dom->toString(1));
 }
 
-#------------------------------------------------------------------------------
-# Get Config With Issue Handlers
-# injects issue handlers from given psalm config file
-#
-# Returns: psalm.xml config file string
 sub getConfigWithIssueHandlers {
     my ($self, $path, $blacklist) = @_;
 
@@ -146,3 +110,92 @@ sub getConfigWithIssueHandlers {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+GPH::Psalm - generate custom configuration file for L<Psalm|https://psalm.dev/>
+
+=head1 SYNOPSIS
+
+    use GPH::Psalm;
+
+    my $psalm = GPH::Psalm->new((
+        level => 6,
+        paths => ['src/', 'tests/'],
+    ));
+
+    print $psalm->getConfig();
+
+=head1 METHODS
+
+=over 4
+
+=item C<< -E<gt>new(%args) >>
+
+the C<new> method creates a new GPH::Psalm instance. it takes a hash of options, valid option keys include:
+
+=over
+
+=item level B<(required)>
+
+psalm analysis level
+
+=item paths B<(required)>
+
+paths to scan for analysis
+
+=item ignored_directories
+
+paths to ignore for analysis
+
+=item baseline
+
+path to baseline file
+
+=item baseline_check
+
+whether or not to scan for unused items in the baseline file. possible values are 'true' and 'false'
+
+=item cache_dir
+
+path to cache directory. defaults to '.psalm/'
+
+=item plugins
+
+paths with plugin names to be included in the config.
+
+please note that additional plugin configuration is not supported by this module.
+
+=back
+
+=item C<< -E<gt>getConfig() >>
+
+returns configuration xml for Psalm
+
+=item C<< -E<gt>getConfigWithIssueHandlers($path, @excludes) >>
+
+merges an issue handler section from another psalm configuration and returns the result.
+
+    my $psalm = GPH::Psalm->new((
+        level => 6,
+        paths => ['src/', 'tests/'],
+    ));
+
+    print $psalm->getConfigWithIssueHandlers('psalm.xml', ['MoreSpecificImplementedParamType']);
+
+the C<$path> parameter should define the path to the config file from which to clone the config handlers,
+while the C<@excludes> list contains the names of issue handlers to ignore.
+
+=back
+
+=head1 AUTHOR
+
+the GPH::PHPStan module was written by wicliff wolda <wicliff.wolda@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+this library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut

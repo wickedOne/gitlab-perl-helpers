@@ -1,31 +1,8 @@
-#------------------------------------------------------------------------------
-# File:         Gitlab.pm
-#
-# Description:  gitlab related functions.
-#               for now only related to code owners file
-#
-# Revisions:    2023-01-20 - created
-#               2023-02-18 - added GetPathsReference to be used with psalm.pm
-#               2023-12-23 - added blacklist for more specific path definition
-#               2024-02-10 - namespaced module, bugfixes and unit tests
-#               2024-02-11 - constructor now requires named arguments
-#               2024-02-18 - added support for default codeowners
-#------------------------------------------------------------------------------
 package GPH::Gitlab;
 
 use strict;
 use warnings FATAL => 'all';
 
-use Data::Dumper;
-
-#------------------------------------------------------------------------------
-# Construct new class
-#
-# Inputs:  codeowners => (string) path to code owners file
-#          owner      => (string) current code owner
-#          excludes   => (array) paths to exclude
-#
-# Returns: reference to Gitlab object
 sub new {
     my ($class, %args) = @_;
 
@@ -43,13 +20,6 @@ sub new {
     return $self->parseCodeowners(%args);
 }
 
-#------------------------------------------------------------------------------
-# Parse codeowners file
-#
-# Inputs:  codeowners => (string) path to code owners file
-#          excludes   => (array) paths to exclude
-#
-# Returns: reference to Gitlab object
 sub parseCodeowners {
     my ($self, %args) = @_;
     my ($fh, %excludes, $default_owners);
@@ -99,12 +69,6 @@ sub parseCodeowners {
     return ($self);
 }
 
-#------------------------------------------------------------------------------
-# Check whether less specific path is already defined and add it to the blacklist
-#
-# Inputs:  class_path => (string) path to check and blacklist
-#
-# Returns: reference to Gitlab object
 sub blacklist {
     my ($self, $class_path) = @_;
 
@@ -119,12 +83,6 @@ sub blacklist {
     return ($self);
 }
 
-#------------------------------------------------------------------------------
-# Replace /**/* with a trailing forward slash
-#
-# Inputs:  line => (string) line to sanitise
-#
-# Returns: string
 sub sanitise {
     my ($self, $line) = @_;
 
@@ -134,54 +92,30 @@ sub sanitise {
     return ($line);
 }
 
-#------------------------------------------------------------------------------
-# Get owner paths
-#
-# Returns: array of code owner paths
 sub getPaths {
     my $self = shift;
 
     return $self->{codeowners}->{$self->{owner}} || [];
 }
 
-#------------------------------------------------------------------------------
-# Get blacklist paths
-#
-# Returns: array of blacklisted paths
 sub getBlacklistPaths {
     my $self = shift;
 
     return $self->{blacklist}->{$self->{owner}} || [];
 }
 
-#------------------------------------------------------------------------------
-# Get owner paths as comma separated path list
-#
-# Returns: comma separated string of code owner paths
 sub getCommaSeparatedPathList {
     my $self = shift;
 
     return join(",", @{$self->getPaths()});
 }
 
-#------------------------------------------------------------------------------
-# Get comma separated path list from input array intersected by owner paths
-#
-# Inputs:  1) array paths to intersect with code owner paths
-#
-# Returns: comma separated string of paths
 sub intersectCommaSeparatedPathList {
     my ($self, @paths) = @_;
 
     return join(",", $self->intersect(@paths));
 }
 
-#------------------------------------------------------------------------------
-# Intersect input array with owner paths, excluding blacklisted paths
-#
-# Inputs:  1) array paths to intersect with code owner paths
-#
-# Returns: array intersection result
 sub intersect {
     my ($self, @paths) = @_;
     my @diff;
@@ -198,12 +132,6 @@ sub intersect {
     return @diff;
 }
 
-#------------------------------------------------------------------------------
-# Match input path with owner paths
-#
-# Inputs:  1) string path to match
-#
-# Returns: int
 sub match {
     my ($self, $path) = @_;
 
@@ -214,12 +142,6 @@ sub match {
     return 0;
 }
 
-#------------------------------------------------------------------------------
-# Match input path with blacklisted paths
-#
-# Inputs:  1) string path to match
-#
-# Returns: int
 sub matchBlacklist {
     my ($self, $path) = @_;
 
@@ -231,3 +153,132 @@ sub matchBlacklist {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+GPH::Gitlab - parse and process L<Gitlab|https://about.gitlab.com/> CODEOWNER file
+
+=head1 SYNOPSIS
+
+    use GPH::Gitlab;
+
+    my $gitlab = GPH::Gitlab->new((
+        owner      => '@teams/alpha',
+        codeowners => './CODEOWNERS,
+    ));
+
+    my $paths $phpmd->getPaths();
+
+=head1 METHODS
+
+=over 4
+
+=item C<< -E<gt>new(%args) >>
+
+the C<new> method creates a new GPH::Gitlab instance. it takes a hash of options, valid option keys include:
+
+=over
+
+=item owner B<(required)>
+
+code owner name
+
+=item codeowners B<(required)>
+
+path to CODEOWNER file
+
+=item excluded
+
+list of paths defined in the CODEOWNER file for given owner, but to ignore
+
+=back
+
+=item C<< -E<gt>getPaths() >>
+
+returns array of paths for given codeowner
+
+=item C<< -E<gt>getBlacklistPaths() >>
+
+returns array of paths which are blacklisted for given codeowner (based on gitlab's "more specific code owner" principle)
+
+=item C<< -E<gt>match($path) >>
+
+match C<$path> with paths defined for given codeowner. returns C<1> on hit, C<0> on miss
+
+=item C<< -E<gt>matchBlacklist($path) >>
+
+match C<$path> with blacklisted paths defined for given codeowner. returns C<1> on hit, C<0> on miss
+
+=item C<< -E<gt>getCommaSeparatedPathList() >>
+
+returns string of comma separated paths, typically used in C<--filter> options of quality tools
+
+=item C<< -E<gt>intersect(@paths) >>
+
+returns intersected array of given C<@paths> and paths defined for given code owner while not defined as blacklisted
+
+=item C<< -E<gt>intersectCommaSeparatedPathList(@paths) >>
+
+returns comma separated string of intersected C<@paths>
+
+=item C<< -E<gt>sanitise($line) >> B<(internal)>
+
+replace /**/* with a trailing forward slash
+
+=item C<< -E<gt>blacklist($class_path) >> B<(internal)>
+
+adds C<$class_path> to blacklists if applicable
+
+=item C<< -E<gt>parseCodeowners(%args) >> B<(internal)>
+
+parse CODEOWNERS file. it takes a hash of options, valid option keys include:
+
+=over
+
+=item codeowners B<(required)>
+
+path to CODEOWNER file
+
+=back
+
+=back
+
+=head1 CAVEATS
+
+currently not all syntax from gitlab's CODEOWNERS file is supported. unsupported at the moment are:
+
+=over 1
+
+=item *
+
+relative & globstar paths (.md )
+
+=item *
+
+wildcard default owner (* @default)
+
+=item *
+
+escaped pound signs (\#)
+
+=item *
+
+single nested paths ('/*')
+
+=item *
+
+paths with spaces
+
+=back
+
+=head1 AUTHOR
+
+the GPH::PHPMD module was written by wicliff wolda <wicliff.wolda@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+this library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut

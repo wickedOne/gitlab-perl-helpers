@@ -21,12 +21,12 @@ describe "class `$CLASS`" => sub {
 };
 
 describe 'configuration options' => sub {
-    my (%config, $level, @paths, @ignoredDirectories, @plugins);
-    my ($expected_baseline, $expected_baselineCheck, $expected_ignoredDirectories, $expected_cacheDir, $expected_plugins);
+    my (%config, $level, @paths, @ignored_directories, @plugins);
+    my ($expected_baseline, $expected_baseline_check, $expected_ignored_directories, $expected_cache_dir, $expected_plugins);
 
     $level = 2;
     @paths = [ 'src/Service/PhraseTagService.php', 'src/Command/AbstractPhraseKeyCommand.php' ];
-    @ignoredDirectories = [ '/ignored/' ];
+    @ignored_directories = [ '/ignored/', '/ignored.php' ];
     @plugins = [ 'Psalm\SymfonyPsalmPlugin\Plugin' ];
 
     case 'minimal options' => sub {
@@ -35,43 +35,43 @@ describe 'configuration options' => sub {
             paths => \@paths,
         );
 
-        $expected_baselineCheck = 'true';
-        $expected_cacheDir = './psalm';
+        $expected_baseline_check = 'true';
+        $expected_cache_dir = './psalm';
         $expected_baseline = undef;
-        $expected_ignoredDirectories = undef;
+        $expected_ignored_directories = undef;
         $expected_plugins = undef;
     };
 
     case 'config with empty arrays' => sub {
         %config = (
-            level              => 2,
-            paths              => \@paths,
-            ignoredDirectories => [],
-            plugins            => [],
+            level               => 2,
+            paths               => \@paths,
+            ignored_directories => [],
+            plugins             => [],
         );
 
-        $expected_baselineCheck = 'true';
-        $expected_cacheDir = './psalm';
+        $expected_baseline_check = 'true';
+        $expected_cache_dir = './psalm';
         $expected_baseline = undef;
-        $expected_ignoredDirectories = undef;
+        $expected_ignored_directories = undef;
         $expected_plugins = undef;
     };
 
     case 'maximal options' => sub {
         %config = (
-            level              => 2,
-            paths              => \@paths,
-            ignoredDirectories => \@ignoredDirectories,
-            baseline           => './baselines/psalm-baseline.xml',
-            baselineCheck      => 'false',
-            cacheDir           => 'var/cache',
-            plugins            => \@plugins,
+            level               => 2,
+            paths               => \@paths,
+            ignored_directories => \@ignored_directories,
+            baseline            => './baselines/psalm-baseline.xml',
+            baseline_check      => 'false',
+            cache_dir           => 'var/cache',
+            plugins             => \@plugins,
         );
 
         $expected_baseline = $config{baseline};
-        $expected_baselineCheck = $config{baselineCheck};
-        $expected_ignoredDirectories = \@ignoredDirectories;
-        $expected_cacheDir = $config{cacheDir};
+        $expected_baseline_check = $config{baseline_check};
+        $expected_ignored_directories = \@ignored_directories;
+        $expected_cache_dir = $config{cache_dir};
         $expected_plugins = \@plugins;
     };
 
@@ -92,10 +92,10 @@ describe 'configuration options' => sub {
             object {
                 field level => $level;
                 field paths => \@paths;
-                field ignoredDirectories => $expected_ignoredDirectories;
+                field ignored_directories => $expected_ignored_directories;
                 field baseline => $expected_baseline;
-                field baselineCheck => $expected_baselineCheck;
-                field cacheDir => $expected_cacheDir;
+                field baseline_check => $expected_baseline_check;
+                field cache_dir => $expected_cache_dir;
                 field plugins => $expected_plugins;
                 field generator => object {
                     prop blessed => 'GPH::XMLHelper';
@@ -111,13 +111,13 @@ describe 'configuration options' => sub {
 describe "class `$CLASS` config generation" => sub {
     my @paths = qw{/src/Command /src/Service /src/DependencyInjection/Configuration.php};
     my %config = (
-        level              => 2,
-        paths              => \@paths,
-        ignoredDirectories => [ 'vendor' ],
-        baseline           => 'baselines/psalm-baseline.xml',
-        baselineCheck      => 'true',
-        cacheDir           => './psalm',
-        plugins            => [ 'Psalm\SymfonyPsalmPlugin\Plugin' ],
+        level               => 2,
+        paths               => \@paths,
+        ignored_directories => [ 'vendor' ],
+        baseline            => 'baselines/psalm-baseline.xml',
+        baseline_check      => 'true',
+        cache_dir           => './psalm',
+        plugins             => [ 'Psalm\SymfonyPsalmPlugin\Plugin' ],
     );
 
     my $object = $CLASS->new(%config);
