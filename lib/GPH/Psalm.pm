@@ -87,14 +87,14 @@ sub getConfig {
 }
 
 sub getConfigWithIssueHandlers {
-    my ($self, $path, $blacklist) = @_;
+    my ($self, $path, @blacklist) = @_;
 
     my $dom = XML::LibXML->load_xml(location => $path);
     my $config = XML::LibXML->load_xml(string => $self->getConfig());
 
     my ($handlers) = $dom->findnodes('//*[local-name()="issueHandlers"]');
 
-    foreach my $exclude ($blacklist) {
+    foreach my $exclude (@blacklist) {
         next unless defined $exclude;
 
         my ($remove) = $handlers->findnodes("//*[local-name()=\"${exclude}\"]");

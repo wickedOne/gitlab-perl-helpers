@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<psalm xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://getpsalm.org/schema/config" cacheDirectory="./psalm" errorLevel="2" findUnusedBaselineEntry="true" resolveFromConfigFile="true" xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd">
+  <projectFiles>
+    <directory name="/src/Command"/>
+    <directory name="/src/Service"/>
+    <file name="/src/DependencyInjection/Configuration.php"/>
+  </projectFiles>
+</psalm>

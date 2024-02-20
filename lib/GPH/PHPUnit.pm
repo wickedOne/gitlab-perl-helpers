@@ -27,18 +27,7 @@ sub new {
 
     bless $self, $class;
 
-    if (exists($args{baseline}) and defined $args{baseline}) {
-        open my $fh, '<', $args{baseline} or die $!;
-        my @lines = ();
-
-        while (<$fh>) {
-            chomp $_;
-            push(@lines, $_);
-        }
-        close($fh);
-
-        $self->{baseline} = \@lines;
-    }
+    $self->parseBaseline(%args);
 
     return $self;
 }
@@ -66,6 +55,26 @@ sub parse {
     print $self->{stats}->summary() . $self->classReport() . $self->{stats}->footer();
 
     return ($self->{stats}->exitCode());
+}
+
+sub parseBaseline {
+    my ($self, %args) = @_;
+    my ($fh, @lines);
+
+    if (exists($args{baseline}) and defined $args{baseline}) {
+
+        open($fh, '<', $args{baseline}) or die $!;
+
+        @lines = ();
+
+        while (<$fh>) {
+            chomp $_;
+            push(@lines, $_);
+        }
+        close($fh);
+
+        $self->{baseline} = \@lines;
+    }
 }
 
 sub classReport {
@@ -140,6 +149,20 @@ parse PHPUnit output from <>, print warning or note when appropriate and return 
 =item C<< -E<gt>classReport() >>
 
 print matched coverage lines
+
+=item C<< -E<gt>parseBaseline(%args) >> B<< (internal) >>
+
+parse baseline file. takes a hash of options, valid option keys include:
+
+=over
+
+=item baseline
+
+path to baseline file which contains paths to ignore while parsing PHPUnit's output
+
+=back
+
+code owner name
 
 =back
 
