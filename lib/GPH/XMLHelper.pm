@@ -1,13 +1,3 @@
-#------------------------------------------------------------------------------
-# File:         GPH::XMLHelper.pm
-#
-# Description:  GPH::XMLHelper simplifies creation of DOM elements
-#
-# Revisions:    2023-09-03 - created
-#               2024-02-10 - namespaced module, bugfixes and unit tests
-#               2024-02-12 - constructor now requires named arguments
-#------------------------------------------------------------------------------
-
 package GPH::XMLHelper;
 
 use strict;
@@ -15,10 +5,6 @@ use warnings FATAL => 'all';
 
 use XML::LibXML;
 
-#------------------------------------------------------------------------------
-# Construct new class
-#
-# Returns: reference to GPH::XMLHelper object
 sub new {
     my ($class) = @_;
 
@@ -31,15 +17,6 @@ sub new {
     return $self;
 }
 
-#------------------------------------------------------------------------------
-# Build element
-#
-# Inputs:  name       => (string) name of the element
-#          value      => (string) value of the element
-#          parent     => (LibXML::Element object) parent element
-#          attributes => (hash) element attributes
-#
-# Returns: LibXML::Element object
 sub buildElement {
     my ($self, %args) = @_;
 
@@ -66,10 +43,6 @@ sub buildElement {
     return $element;
 }
 
-#------------------------------------------------------------------------------
-# Get DOM
-#
-# Returns: dom object
 sub getDom {
     my $self = shift;
 
@@ -77,3 +50,63 @@ sub getDom {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+GPH::XMLHelper - helper class for creating xml nodes
+
+=head1 SYNOPSIS
+
+    use GPH::XMLHelper;
+
+    my $helper = GPH::XMLHelper->new();
+
+=head1 METHODS
+
+=over 4
+
+=item C<< -E<gt>new() >>
+
+the C<new> method returns a GPH::XMLHelper object.
+
+=item C<< -E<gt>buildElement(%args) >>
+
+creates new XML::LibXML::Element instance. it takes a hash of options, valid option keys include:
+
+=over
+
+=item name B<(required)>
+
+element name
+
+=item attributes
+
+element attributes
+
+=item value
+
+element value
+
+=item parent
+
+parent XML::LibXML::Element
+
+=back
+
+=item C<< -E<gt>getDom() >>
+
+returns the DOM document.
+
+=back
+
+=head1 AUTHOR
+
+the GPH::XMLHelper module was written by wicliff wolda <wicliff.wolda@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+this library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut

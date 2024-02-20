@@ -1,44 +1,22 @@
-#------------------------------------------------------------------------------
-# File:         GPH::PHPStan.pm
-#
-# Description:  GPH::PHPStan related functions.
-#
-# Revisions:    2023-07-25 - created
-#               2024-02-10 - namespaced module, bugfixes and unit tests
-#               2024-02-11 - constructor now requires named arguments
-#------------------------------------------------------------------------------
-
 package GPH::PHPStan;
 
 use strict;
 use warnings FATAL => 'all';
 
-#------------------------------------------------------------------------------
-# Construct new class
-#
-# Inputs:  level              => (string) phpstan error level
-#          paths              => (array) paths to analyse
-#          ignoredDirectories => (array) paths to ignore
-#          baseline           => (string) path to baseline file, defaults to undef
-#          cacheDir           => (string) path to cache directory, defaults to 'var'
-#          includes           => (array) includes
-#          threads            => (int) threads, defaults to 4
-#
-# Returns: reference to GPH::PHPStan object
 sub new {
     my ($class, %args) = @_;
 
     (exists($args{level}) and exists($args{paths})) or die "$!";
 
     # filter out empty arrays
-    my $excludes = ((exists($args{ignoredDirectories}) and scalar(@{$args{ignoredDirectories}}) != 0) ? $args{ignoredDirectories} : undef);
+    my $excludes = ((exists($args{ignored_directories}) and scalar(@{$args{ignored_directories}}) != 0) ? $args{ignored_directories} : undef);
 
     my $self = {
         level              => $args{level},
         paths              => $args{paths},
         ignoredDirectories => $excludes,
         baseline           => $args{baseline} || undef,
-        cacheDir           => $args{cacheDir} || 'var',
+        cacheDir           => $args{cache_dir} || 'var',
         includes           => $args{includes} || undef,
         threads            => $args{threads} || 4
     };
@@ -48,10 +26,6 @@ sub new {
     return $self;
 }
 
-#------------------------------------------------------------------------------
-# Get config
-#
-# Returns: phpstan neon config file string
 sub getConfig {
     my $self = shift;
     my $config;
@@ -93,3 +67,76 @@ sub getConfig {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+GPH::PHPStan - generate custom configuration file for L<PHPStan|https://phpstan.org/>
+
+=head1 SYNOPSIS
+
+    use GPH::PHPStan;
+
+    my $phpstan = GPH::PHPStan->new((
+        level => 6,
+        paths => ['src/', 'tests/'],
+    ));
+
+    print $phpstan->getConfig();
+
+=head1 METHODS
+
+=over 4
+
+=item C<< -E<gt>new(%args) >>
+
+the C<new> method creates a new GPH::PHPStan instance. it takes a hash of options, valid option keys include:
+
+=over
+
+=item level B<(required)>
+
+phpstan analysis level
+
+=item paths B<(required)>
+
+paths to scan for analysis
+
+=item ignored_directories
+
+paths to ignore for analysis
+
+=item baseline
+
+path to baseline file
+
+=item cache_dir
+
+path to cache directory. defaults to 'var/'
+
+=item includes
+
+paths to neon files to include in the configuration
+
+=item threads
+
+maximum number of threads to use, defaults to 4.
+
+=back
+
+=item C<< -E<gt>getConfig() >>
+
+returns configuration xml for PHPStan
+
+=back
+
+=head1 AUTHOR
+
+the GPH::PHPStan module was written by wicliff wolda <wicliff.wolda@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+this library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut

@@ -28,13 +28,13 @@ my $clone = (defined($ENV{'PSALM_CLONE_HANDLERS'}) ? $ENV{'PSALM_CLONE_HANDLERS'
 @ignored = (@ignored, @{$gitlab->getBlacklistPaths()});
 
 my %config = (
-    level              => $ENV{'PSALM_LEVEL'} || 4,
-    paths              => $gitlab->getPaths(),
-    ignoredDirectories => \@ignored,
-    baseline           => $ENV{'PSALM_BASELINE'},
-    baselineCheck      => $ENV{'PSALM_BASELINE_CHECK'},
-    cacheDir           => $ENV{'PSALM_CACHE_DIR'},
-    plugins            => \@plugins,
+    level               => $ENV{'PSALM_LEVEL'} || 4,
+    paths               => $gitlab->getPaths(),
+    ignored_directories => \@ignored,
+    baseline            => $ENV{'PSALM_BASELINE'},
+    baseline_check      => $ENV{'PSALM_BASELINE_CHECK'},
+    cache_dir           => $ENV{'PSALM_CACHE_DIR'},
+    plugins             => \@plugins,
 );
 
 my $psalm = GPH::Psalm->new(%config);

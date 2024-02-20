@@ -59,9 +59,9 @@ describe "class `$CLASS` instantiation values" => sub {
 
     case 'config with empty array for ignores' => sub {
         %config = (
-            level              => 4,
-            paths              => \@paths,
-            ignoredDirectories => => [],
+            level               => 4,
+            paths               => \@paths,
+            ignored_directories => [],
         );
 
         $expected_level = 4;
@@ -81,13 +81,13 @@ describe "class `$CLASS` instantiation values" => sub {
         $includes[1] = undef;
 
         %config = (
-            level              => 1,
-            paths              => \@paths,
-            baseline           => './baselines/baseline.xml',
-            ignoredDirectories => \@ignoredDirectories,
-            cacheDir           => '/tmp',
-            includes           => \@includes,
-            threads            => 6
+            level               => 1,
+            paths               => \@paths,
+            baseline            => './baselines/baseline.xml',
+            ignored_directories => \@ignoredDirectories,
+            cache_dir           => '/tmp',
+            includes            => \@includes,
+            threads             => 6
         );
 
         $expected_level = 1;

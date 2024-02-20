@@ -1,17 +1,3 @@
-#------------------------------------------------------------------------------
-# File:         GPH::PHPUnit.pm
-#
-# Description:  Parses GPH::PHPUnit coverage output and filters it for given
-#               code owner. Provides option to fail if coverage is below
-#               required threshold
-#
-# Revisions:    2023-01-21 - created
-#               2024-01-23 - added baseline option to ignore certain paths / files
-#                            within owner's code-space.
-#                            sort stats output for ease of lookup
-#               2024-02-10 - namespaced module, bugfixes and unit tests
-#               2024-02-11 - constructor now requires named arguments
-#------------------------------------------------------------------------------
 package GPH::PHPUnit;
 
 use strict;
@@ -24,17 +10,6 @@ use GPH::Composer;
 use GPH::Gitlab;
 use GPH::PHPUnit::Stats;
 
-#------------------------------------------------------------------------------
-# Construct new GPH::PHPUnit class
-#
-# Inputs:  owner      => (string) code owner
-#          codeowners => (string) path to code owners file
-#          classmap   => (string) path to classmap file
-#          threshold  => (float) minimal coverage percentage threshold, defaults to 0.0
-#          excludes   => (array) code owner paths to exclude
-#          baseline   => (string) path to baseline file, defaults to undef
-#
-# Returns: reference to GPH::PHPUnit object
 sub new {
     my ($class, %args) = @_;
 
@@ -68,10 +43,6 @@ sub new {
     return $self;
 }
 
-#------------------------------------------------------------------------------
-# Parses PHPUnit coverage-text output from stdin
-#
-# Returns: int | exit code
 sub parse {
     my ($self) = @_;
 
@@ -97,10 +68,6 @@ sub parse {
     return ($self->{stats}->exitCode());
 }
 
-#------------------------------------------------------------------------------
-# Print PHPUnit Class report
-#
-# Returns: string
 sub classReport {
     my $self = shift;
 
@@ -114,3 +81,74 @@ sub classReport {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+GPH::PHPUnit - parses L<PHPUnit|https://phpunit.de/> coverage output and filters it for given code owner.
+provides option to fail if coverage is below required threshold
+
+=head1 SYNOPSIS
+
+    use GPH::PHPUnit;
+
+    my $phpunit = GPH::PHPUnit->new((
+        owner       => '@teams/alpha',
+        codeowners  => './CODEOWNERS,
+        classmap    => './vendor/composer/autoload_classmap.php'
+    ));
+
+    $phpunit->parse();
+
+=head1 METHODS
+
+=over 4
+
+=item C<< -E<gt>new(%args) >>
+
+the C<new> method creates a new GPH::PHPUnit instance. it takes a hash of options, valid option keys include:
+
+=over
+
+=item owner B<(required)>
+
+code owner name
+
+=item codeowners B<(required)>
+
+path to CODEOWNERS file
+
+=item classmap B<(required)>
+
+path to (optimised) autoload file
+
+=item threshold
+
+minimal line coverage required while parsing. defaults to C<0.0>
+
+=item baseline
+
+path to baseline file which contains paths to ignore while parsing PHPUnit's output
+
+=back
+
+=item C<< -E<gt>parse() >>
+
+parse PHPUnit output from <>, print warning or note when appropriate and return exit code
+
+=item C<< -E<gt>classReport() >>
+
+print matched coverage lines
+
+=back
+
+=head1 AUTHOR
+
+the GPH::PHPUnit module was written by wicliff wolda <wicliff.wolda@gmail.com>
+
+=head1 COPYRIGHT AND LICENSE
+
+this library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
+
+=cut
