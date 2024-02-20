@@ -3,7 +3,7 @@ package GPH;
 use strict;
 use warnings FATAL => 'all';
 
-our $VERSION = '1.1.2';
+our $VERSION = '1.1.3';
 
 1;
 
@@ -17,7 +17,7 @@ GPH - Gitlab Perl Helpers
 
 set of modules and integration scripts to support building code owner specific ci jobs for gitlab
 
-=head1 API
+=head1 MODULES
 
 =over 4
 

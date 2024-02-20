@@ -6,6 +6,7 @@
     <file name="/src/DependencyInjection/Configuration.php"/>
     <ignoreFiles>
       <directory name="vendor"/>
+      <file name="example.php"/>
     </ignoreFiles>
   </projectFiles>
   <plugins>

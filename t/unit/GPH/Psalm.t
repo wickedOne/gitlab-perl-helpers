@@ -113,20 +113,35 @@ describe "class `$CLASS` config generation" => sub {
     my %config = (
         level               => 2,
         paths               => \@paths,
-        ignored_directories => [ 'vendor' ],
+        ignored_directories => [ 'vendor', 'example.php' ],
         baseline            => 'baselines/psalm-baseline.xml',
         baseline_check      => 'true',
         cache_dir           => './psalm',
         plugins             => [ 'Psalm\SymfonyPsalmPlugin\Plugin' ],
     );
 
-    my $object = $CLASS->new(%config);
-
-    tests 'compare config contents' => sub {
+    tests 'compare max config contents' => sub {
+        my $object = $CLASS->new(%config);
         my $config = $object->getConfig();
         my $mock;
 
-        open(my $fh, '<', './t/share/Psalm/psalm.xml');
+        open(my $fh, '<', './t/share/Psalm/psalm-max.xml');
+
+        local $/;
+        $mock = <$fh>;
+
+        close($fh);
+
+        is($config, $mock, 'config content correct');
+    };
+
+    tests 'compare min config contents' => sub {
+        my $object = $CLASS->new((level => 2, paths => \@paths));
+
+        my $config = $object->getConfig();
+        my $mock;
+
+        open(my $fh, '<', './t/share/Psalm/psalm-min.xml');
 
         local $/;
         $mock = <$fh>;
@@ -137,7 +152,12 @@ describe "class `$CLASS` config generation" => sub {
     };
 
     tests 'compare config with issue handlers content' => sub {
-        my $config = $object->getConfigWithIssueHandlers('./t/share/Psalm/psalm-stub.xml', qw{MoreSpecificImplementedParamType NonExistingHandler});
+        my $object = $CLASS->new(%config);
+
+        my @blacklist = qw{MoreSpecificImplementedParamType NonExistingHandler};
+        $blacklist[2] = undef;
+
+        my $config = $object->getConfigWithIssueHandlers('./t/share/Psalm/psalm-stub.xml', @blacklist);
         my $mock;
 
         open(my $fh, '<', './t/share/Psalm/psalm-issue-handlers.xml');
