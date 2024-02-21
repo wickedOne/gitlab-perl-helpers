@@ -12,7 +12,7 @@ sub new {
 
     bless $self, $class;
 
-    $self->{classmap} = $self->parseClassMap($args{classmap});
+    $self->parseClassMap($args{classmap});
 
     return $self;
 }
@@ -51,12 +51,8 @@ sub parseClassMap {
         next unless $line =~ /\$baseDir\s\./;
 
         my ($class, $code_path) = split(/ => \$baseDir \. /, $line);
-        $classmap{strip($class)} = strip($code_path);
+        $self->{classmap}{strip($class)} = strip($code_path);
     }
-
-    close($fh);
-
-    return (\%classmap);
 }
 
 sub strip {
