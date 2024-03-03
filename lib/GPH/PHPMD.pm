@@ -4,7 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use XML::LibXML;
-use GPH::XMLHelper;
+use GPH::Util::XMLHelper;
 
 sub new {
     my ($class, %args) = @_;
@@ -14,7 +14,7 @@ sub new {
     my $self = {
         owner      => $args{owner},
         cycloLevel => $args{cyclo_level},
-        generator  => GPH::XMLHelper->new(),
+        generator  => GPH::Util::XMLHelper->new(),
     };
 
     bless $self, $class;

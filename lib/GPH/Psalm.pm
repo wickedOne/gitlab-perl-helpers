@@ -4,7 +4,7 @@ use strict;
 use warnings FATAL => 'all';
 
 use XML::LibXML;
-use GPH::XMLHelper;
+use GPH::Util::XMLHelper;
 
 sub new {
     my ($class, %args) = @_;
@@ -23,7 +23,7 @@ sub new {
         baseline_check      => $args{baseline_check} || 'true',
         cache_dir           => $args{cache_dir} || './psalm',
         plugins             => $plugins,
-        generator           => GPH::XMLHelper->new(),
+        generator           => GPH::Util::XMLHelper->new(),
     };
 
     bless $self, $class;
