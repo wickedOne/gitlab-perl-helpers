@@ -98,7 +98,7 @@ describe 'configuration options' => sub {
                 field cache_dir => $expected_cache_dir;
                 field plugins => $expected_plugins;
                 field generator => object {
-                    prop blessed => 'GPH::XMLHelper';
+                    prop blessed => 'GPH::Util::XMLHelper';
                 };
                 etc;
             },

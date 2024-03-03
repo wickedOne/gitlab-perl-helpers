@@ -36,7 +36,7 @@ describe "class `$CLASS`" => sub {
                 field owner => '@teams/alpha';
                 field cycloLevel => 3;
                 field generator => object {
-                    prop blessed => 'GPH::XMLHelper';
+                    prop blessed => 'GPH::Util::XMLHelper';
                 };
                 end;
             },

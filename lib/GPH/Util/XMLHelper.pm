@@ -1,4 +1,4 @@
-package GPH::XMLHelper;
+package GPH::Util::XMLHelper;
 
 use strict;
 use warnings FATAL => 'all';

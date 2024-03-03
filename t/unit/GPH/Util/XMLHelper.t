@@ -1,10 +1,10 @@
 #!/usr/bin/perl
-package t::unit::GPH::XMLHelper;
+package t::unit::GPH::Util::XMLHelper;
 
 use strict;
 use warnings;
 
-use Test2::V0 -target => 'GPH::XMLHelper';
+use Test2::V0 -target => 'GPH::Util::XMLHelper';
 use Test2::Tools::Spec;
 use Data::Dumper;
 
