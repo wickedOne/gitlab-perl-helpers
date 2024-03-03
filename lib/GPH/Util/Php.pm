@@ -16,7 +16,7 @@ sub new {
 
 sub types {
     my ($self, @files) = @_;
-    my ($fh, $pattern);
+    my ($fh, $pattern, $constant);
 
     foreach my $file (@files) {
         chomp $file;
@@ -24,9 +24,12 @@ sub types {
         open($fh, '<', getcwd() . '/' . $file) or die "unable to open file $file : $!";
 
         $pattern = "[ ]{0,}([^ ]+) " . $1 . "(?:[ :]|\$){1,}";
+        $constant = $1 . "::class";
 
         while(<$fh>) {
             chomp $_;
+            next if $_ =~ /^[\* ]\*/; #ignore comments
+            next if $_ =~ $constant;
             next unless $_ =~ $pattern;
             my $type = ($1 ne 'enum') ? $1 : $self->resolveEnum(<$fh>);
 
