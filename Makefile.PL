@@ -12,7 +12,8 @@ WriteMakefile(
     PREREQ_PM          => {
         "File::Basename" => 0,
         "Time::Piece"    => 0,
-        "XML::LibXML"    => 0
+        "XML::LibXML"    => 0,
+        "Cwd"            => 0
     },
     CONFIGURE_REQUIRES => {
         "ExtUtils::MakeMaker" => 0
