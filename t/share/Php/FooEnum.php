@@ -1,0 +1,4 @@
+enum FooEnum: string
+{
+
+}
