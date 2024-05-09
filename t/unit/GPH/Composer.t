@@ -82,5 +82,25 @@ describe 'test matching' => sub {
     };
 };
 
+describe 'test get namespaces' => sub {
+    tests 'namespaces' => sub {
+            my ($object, $exception, $warnings, @result);
+
+        $exception = dies {
+            $warnings = warns {
+                $object = $CLASS->new((classmap => CLASSMAP_FILE));
+                @result = $object->getNamespaces(qw(/src/Command/PhraseKeyTagCommand.php src/Command/PhraseKeyUntagCommand.php src/NonExisting.php));
+            };
+        };
+
+        is($exception, undef, 'no exception thrown');
+        is($warnings, 0, 'no warnings generated');
+        is(\@result, array {
+            item "WickedOne\\PhraseTagBundle\\Command\\PhraseKeyTagCommand";
+            item "WickedOne\\PhraseTagBundle\\Command\\PhraseKeyUntagCommand";
+        }, 'expected namespaces returned') or diag Dumper(@result);
+    };
+};
+
 done_testing();
 

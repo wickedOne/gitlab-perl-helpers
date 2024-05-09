@@ -37,9 +37,23 @@ sub match {
     return 0;
 }
 
+sub getNamespaces {
+    my ($self, @paths) = @_;
+    my (%reversed, @result);
+    %reversed = reverse %{$self->{classmap}};
+
+    foreach my $path (@paths) {
+        $path = '/' . $path if rindex $path, '/', 0;
+
+        next if !defined $reversed{$path};
+        push(@result, $reversed{$path});
+    }
+
+    return(@result);
+};
+
 sub parseClassMap {
     my ($self, $path) = @_;
-    my %classmap = ();
 
     open(my $fh, '<', $path) or die "can't open classmap file $!";
 
@@ -106,6 +120,10 @@ matches a FQCN to the classmap limited by a collection of paths. returns C<1> on
 =item C<< -E<gt>getClassMap() >>
 
 returns reference to the parsed classmap hash.
+
+=item C<< -E<gt>getNamespaces(@paths)  >>
+
+returns a list of namespaces for given paths.
 
 =item C<< -E<gt>parseClassMap() >> B<(internal)>
 

@@ -16,7 +16,7 @@ describe "class `$CLASS`" => sub {
         can_ok($CLASS, 'new');
     };
 
-    tests 'instantation' => sub {
+    tests 'instantiation' => sub {
         my ($object, $exception, $warnings);
 
         $exception = dies {

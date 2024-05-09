@@ -4,7 +4,6 @@ use strict;
 use warnings FATAL => 'all';
 
 use Cwd;
-use Data::Dumper;
 
 sub new {
     my ($proto) = @_;

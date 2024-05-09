@@ -26,7 +26,7 @@ describe "class `$CLASS`" => sub {
 };
 
 describe 'configuration options' => sub {
-    tests 'instantation' => sub {
+    tests 'instantiation' => sub {
         my ($object, $exception, $warnings);
 
         $exception = dies {
