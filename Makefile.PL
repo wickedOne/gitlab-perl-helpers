@@ -10,10 +10,11 @@ WriteMakefile(
     VERSION_FROM       => 'lib/GPH.pm',
     LICENSE            => 'perl',
     PREREQ_PM          => {
-        "File::Basename" => 0,
-        "Time::Piece"    => 0,
-        "XML::LibXML"    => 0,
-        "Cwd"            => 0
+        "File::Basename"   => 0,
+        "Time::Piece"      => 0,
+        "XML::LibXML"      => 0,
+        "Cwd"              => 0,
+        "File::Find::Rule" => 0,
     },
     CONFIGURE_REQUIRES => {
         "ExtUtils::MakeMaker" => 0

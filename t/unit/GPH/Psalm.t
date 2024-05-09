@@ -75,7 +75,7 @@ describe 'configuration options' => sub {
         $expected_plugins = \@plugins;
     };
 
-    tests 'instantation' => sub {
+    tests 'instantiation' => sub {
         my ($object, $exception, $warnings);
 
         $exception = dies {

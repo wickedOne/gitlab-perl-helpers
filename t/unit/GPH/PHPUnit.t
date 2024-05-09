@@ -62,7 +62,7 @@ describe 'configuration options' => sub {
         @expected_baseline = qw{/src/Service/Provider/ /src/Mapper/};
     };
 
-    tests 'instantation' => sub {
+    tests 'instantiation' => sub {
         my ($object, $exception, $warnings);
 
         $exception = dies {

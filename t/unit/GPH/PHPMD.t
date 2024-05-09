@@ -18,7 +18,7 @@ describe "class `$CLASS`" => sub {
         ok(lives {$CLASS->new((owner => '@teams/alpha', cyclo_level => 8))}, 'lived with mandatory options') or note($@);
     };
 
-    tests 'instantation' => sub {
+    tests 'instantiation' => sub {
         my ($object, $exception, $warnings);
 
         $exception = dies {
