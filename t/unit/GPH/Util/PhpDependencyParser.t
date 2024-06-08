@@ -125,13 +125,21 @@ describe "class `$CLASS` parse method" => sub {
 };
 
 describe "class `$CLASS` dir method" => sub {
+    tests 'dies for missing directories argument' => sub {
+        ok(dies {$CLASS->new()->dir((strip => 't/share/Php/Parser/'))}, 'died with missing directories argument') or note($@);
+    };
+
+    tests 'dies for missing strip argument' => sub {
+        ok(dies {$CLASS->new()->dir((directories => ['t/share/Php/Parser/']))}, 'died with missing directories argument') or note($@);
+    };
+
     tests 'parse directory of php files' => sub {
         my ($object, $exception, $warnings);
 
         $exception = dies {
             $warnings = warns {
                 $object = $CLASS->new();
-                $object->dir('t/share/Php/Parser/', 't/share/Php/Parser/');
+                $object->dir((directories => ['t/share/Php/Parser/'], strip => 't/share/Php/Parser/'));
             };
         };
 
@@ -157,7 +165,7 @@ describe "class `$CLASS` dir method" => sub {
                         end;
                     };
                     field 'App\Tests\Unit\Foo\MapperTrait' => array {
-                        item 'BarMapper.php';
+                        item 'Bar/BarMapper.php';
                         end;
                     };
                     field 'App\Foo\BazMapper' => array {
@@ -205,13 +213,101 @@ describe "class `$CLASS` dir method" => sub {
                 };
                 field classmap => hash {
                     field 'MapperTestCase.php' => 'App\Tests\Unit\Foo\MapperTestCase';
-                    field 'BarMapper.php' => 'App\Foo\BarMapper';
+                    field 'Bar/BarMapper.php' => 'App\Foo\BarMapper';
                     field 'MapperTrait.php' => 'App\Tests\Unit\Foo\MapperTrait';
                     field 'MapperTest.php' => 'App\Tests\Unit\Foo\MapperTest';
                 };
                 end;
             },
             'object as expected'
+        ) or diag Dumper($object);
+    };
+
+    tests 'parse directory of php files and exclude directory' => sub {
+        my ($object, $exception, $warnings);
+
+        $exception = dies {
+            $warnings = warns {
+                $object = $CLASS->new();
+                $object->dir((directories => ['t/share/Php/Parser/'], excludes => ['t/share/Php/Parser/Bar'], strip => 't/share/Php/Parser/'));
+            };
+        };
+
+        is($exception, undef, 'no exception thrown');
+        is($warnings, 0, 'no warnings generated');
+
+        is(
+            $object,
+            object {
+                field usages => hash {
+                    field 'PHPUnit\Framework\TestCase' => array {
+                        end;
+                    };
+                    field 'App\Foo\BarMapper' => array {
+                        item 'MapperTest.php';
+                        end;
+                    };
+                    field 'App\Foo\Mapper' => array {
+                        item 'MapperTest.php';
+                        end;
+                    };
+                    field 'App\Foo\QuxMapper' => array {
+                        end;
+                    };
+                    field 'App\Tests\Unit\Foo\MapperTrait' => array {
+                        end;
+                    };
+                    field 'App\Foo\BazMapper' => array {
+                        end;
+                    };
+                };
+                field traits => hash {
+                    field 'App\Tests\Unit\Foo\MapperTrait' => array {
+                        item 'App\Foo\BazMapper';
+                        end;
+                    };
+                };
+                field abstracts => hash {
+                    field 'App\Tests\Unit\Foo\MapperTestCase' => array {
+                        item 'App\Foo\QuxMapper';
+                        item 'App\Foo\Mapper';
+                        item 'App\Tests\Unit\Foo\MapperTrait';
+                        item 'PHPUnit\Framework\TestCase';
+                        end;
+                    };
+                };
+                field inheritance => hash {
+                    field 'App\Tests\Unit\Foo\MapperTest' => hash {
+                        field 'extends' => 'App\Tests\Unit\Foo\MapperTestCase';
+                        field 'file' => 'MapperTest.php';
+                        field 'usages' => array {
+                            item 'App\Foo\Mapper';
+                            item 'App\Foo\BarMapper';
+                            end;
+                        };
+                        end;
+                    };
+                    field 'App\Tests\Unit\Foo\MapperTestCase' => hash {
+                        field 'extends' => 'PHPUnit\Framework\TestCase';
+                        field 'file' => 'MapperTestCase.php';
+                        field 'usages' => array {
+                            item 'App\Foo\QuxMapper';
+                            item 'App\Foo\Mapper';
+                            item 'App\Tests\Unit\Foo\MapperTrait';
+                            item 'PHPUnit\Framework\TestCase';
+                            end;
+                        };
+                        end;
+                    };
+                };
+                field classmap => hash {
+                    field 'MapperTestCase.php' => 'App\Tests\Unit\Foo\MapperTestCase';
+                    field 'MapperTrait.php' => 'App\Tests\Unit\Foo\MapperTrait';
+                    field 'MapperTest.php' => 'App\Tests\Unit\Foo\MapperTest';
+                };
+                end;
+            },
+                'object as expected'
         ) or diag Dumper($object);
     };
 };
@@ -223,7 +319,7 @@ describe "class `$CLASS` inheritance method" => sub {
         $exception = dies {
             $warnings = warns {
                 $object = $CLASS->new();
-                $object->dir('t/share/Php/Parser/', 't/share/Php/Parser/')->inheritance();
+                $object->dir((directories => ['t/share/Php/Parser/'], strip => 't/share/Php/Parser/'))->inheritance();
             };
         };
 
@@ -252,7 +348,7 @@ describe "class `$CLASS` inheritance method" => sub {
                         end;
                     };
                     field 'App\Tests\Unit\Foo\MapperTrait' => array {
-                        item 'BarMapper.php';
+                        item 'Bar/BarMapper.php';
                         item 'MapperTest.php';
                         end;
                     };
@@ -305,7 +401,7 @@ describe "class `$CLASS` inheritance method" => sub {
                 };
                 field classmap => hash {
                     field 'MapperTestCase.php' => 'App\Tests\Unit\Foo\MapperTestCase';
-                    field 'BarMapper.php' => 'App\Foo\BarMapper';
+                    field 'Bar/BarMapper.php' => 'App\Foo\BarMapper';
                     field 'MapperTrait.php' => 'App\Tests\Unit\Foo\MapperTrait';
                     field 'MapperTest.php' => 'App\Tests\Unit\Foo\MapperTest';
                     end;
@@ -324,7 +420,7 @@ describe "class `$CLASS` traits method" => sub {
         $exception = dies {
             $warnings = warns {
                 $object = $CLASS->new();
-                $object->dir('t/share/Php/Parser/', 't/share/Php/Parser/')
+                $object->dir((directories => ['t/share/Php/Parser/'], strip => 't/share/Php/Parser/'))
                     ->traits()
                 ;
             };
@@ -352,11 +448,11 @@ describe "class `$CLASS` traits method" => sub {
                         end;
                     };
                     field 'App\Tests\Unit\Foo\MapperTrait' => array {
-                        item 'BarMapper.php';
+                        item 'Bar/BarMapper.php';
                         end;
                     };
                     field 'App\Foo\BazMapper' => array {
-                        item 'BarMapper.php';
+                        item 'Bar/BarMapper.php';
                         end;
                     };
                     end;
@@ -404,7 +500,7 @@ describe "class `$CLASS` traits method" => sub {
                 };
                 field classmap => hash {
                     field 'MapperTestCase.php' => 'App\Tests\Unit\Foo\MapperTestCase';
-                    field 'BarMapper.php' => 'App\Foo\BarMapper';
+                    field 'Bar/BarMapper.php' => 'App\Foo\BarMapper';
                     field 'MapperTrait.php' => 'App\Tests\Unit\Foo\MapperTrait';
                     field 'MapperTest.php' => 'App\Tests\Unit\Foo\MapperTest';
                 };
@@ -422,7 +518,7 @@ describe "class `$CLASS` sanitise method" => sub {
         $exception = dies {
             $warnings = warns {
                 $object = $CLASS->new();
-                $object->dir('t/share/Php/Parser/', 't/share/Php/Parser/')
+                $object->dir((directories => ['t/share/Php/Parser/'], strip => 't/share/Php/Parser/'))
                     ->sanitise()
                 ;
             };
@@ -495,7 +591,7 @@ describe "class `$CLASS` sanitise method" => sub {
                 };
                 field classmap => hash {
                     field 'MapperTestCase.php' => 'App\Tests\Unit\Foo\MapperTestCase';
-                    field 'BarMapper.php' => 'App\Foo\BarMapper';
+                    field 'Bar/BarMapper.php' => 'App\Foo\BarMapper';
                     field 'MapperTrait.php' => 'App\Tests\Unit\Foo\MapperTrait';
                     field 'MapperTest.php' => 'App\Tests\Unit\Foo\MapperTest';
                     end;
@@ -511,9 +607,9 @@ describe "class `$CLASS` filter method" => sub {
     my @filter = qw(App\Foo\BazMapper App\Foo\QuxMapper App\Foo\NonExisting);
 
     tests 'dies for missing argument' => sub {
-        ok(dies {$CLASS->new()->dir('t/share/Php/Parser/', 't/share/Php/Parser/')->filter((collection => \@filter, out => 'namespaces'))}, 'died with missing "in" argument') or note($@);
-        ok(dies {$CLASS->new()->dir('t/share/Php/Parser/', 't/share/Php/Parser/')->filter((collection => \@filter, in => 'namespaces'))}, 'died with missing "out" argument') or note($@);
-        ok(dies {$CLASS->new()->dir('t/share/Php/Parser/', 't/share/Php/Parser/')->filter((in => 'namespaces', out => 'files'))}, 'died with missing "collection" argument') or note($@);
+        ok(dies {$CLASS->new()->dir((directories => ['t/share/Php/Parser/'], strip => 't/share/Php/Parser/'))->filter((collection => \@filter, out => 'namespaces'))}, 'died with missing "in" argument') or note($@);
+        ok(dies {$CLASS->new()->dir((directories => ['t/share/Php/Parser/'], strip => 't/share/Php/Parser/'))->filter((collection => \@filter, in => 'namespaces'))}, 'died with missing "out" argument') or note($@);
+        ok(dies {$CLASS->new()->dir((directories => ['t/share/Php/Parser/'], strip => 't/share/Php/Parser/'))->filter((in => 'namespaces', out => 'files'))}, 'died with missing "collection" argument') or note($@);
     };
 
     tests 'filter parsed dependency map' => sub {
@@ -522,7 +618,7 @@ describe "class `$CLASS` filter method" => sub {
         $exception = dies {
             $warnings = warns {
                 $object = $CLASS->new();
-                @result = $object->dir('t/share/Php/Parser/', 't/share/Php/Parser/')
+                @result = $object->dir((directories => ['t/share/Php/Parser/'], strip => 't/share/Php/Parser/'))
                     ->inheritance()
                     ->traits()
                     ->sanitise()
@@ -537,7 +633,7 @@ describe "class `$CLASS` filter method" => sub {
         is(
             \@result,
             array {
-                item 'BarMapper.php';
+                item 'Bar/BarMapper.php';
                 item 'MapperTest.php';
             },
             'object as expected'
@@ -546,11 +642,11 @@ describe "class `$CLASS` filter method" => sub {
 
     tests 'classnames from filtered dependency map' => sub {
         my ($object, @result, $exception, $warnings);
-        my @files = qw(BarMapper.php MapperNonExisting.php);
+        my @files = qw(Bar/BarMapper.php MapperNonExisting.php);
         $exception = dies {
             $warnings = warns {
                 $object = $CLASS->new();
-                @result = $object->dir('t/share/Php/Parser/', 't/share/Php/Parser/')
+                @result = $object->dir((directories => ['t/share/Php/Parser/'], strip => 't/share/Php/Parser/'))
                     ->inheritance()
                     ->traits()
                     ->sanitise()

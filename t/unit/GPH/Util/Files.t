@@ -132,6 +132,68 @@ describe "class `$CLASS` segment method" => sub {
             'object as expected'
         ) or diag Dumper(%segments);
     };
+
+    tests 'segment with depth 2 and max 1 and segment max' => sub {
+        my ($object, $exception, $warnings, %segments);
+
+        $exception = dies {
+            $warnings = warns {
+                $object = $CLASS->new();
+                %segments = $object->segment((paths => @files, depth => 2, max => 1, segment_max => {'tests.Functional' => 2}));
+            };
+        };
+
+        is($exception, undef, 'no exception thrown');
+        is($warnings, 0, 'no warnings generated');
+
+        is(
+            \%segments,
+            hash {
+                field "tests.Unit" => array {
+                    item 'tests/Unit/Parser/MapperTest.php';
+                    end;
+                };
+                field "tests.Functional" => array {
+                    item 'tests/Functional/Parser/MapperTest.php';
+                    item 'tests/Functional/Parser/MapperTestCase.php';
+                    end;
+                };
+                end;
+            },
+                'object as expected'
+        ) or diag Dumper(%segments);
+    };
+
+    tests 'segment with depth 2, without max and segment max' => sub {
+        my ($object, $exception, $warnings, %segments);
+
+        $exception = dies {
+            $warnings = warns {
+                $object = $CLASS->new();
+                %segments = $object->segment((paths => @files, depth => 2, segment_max => {'tests.Unit' => 1}));
+            };
+        };
+
+        is($exception, undef, 'no exception thrown');
+        is($warnings, 0, 'no warnings generated');
+
+        is(
+            \%segments,
+            hash {
+                field "tests.Unit" => array {
+                    item 'tests/Unit/Parser/MapperTest.php';
+                    end;
+                };
+                field "tests.Functional" => array {
+                    item 'tests/Functional/Parser/MapperTest.php';
+                    item 'tests/Functional/Parser/MapperTestCase.php';
+                    end;
+                };
+                end;
+            },
+                'object as expected'
+        ) or diag Dumper(%segments);
+    };
 };
 
 done_testing();

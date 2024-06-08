@@ -25,16 +25,17 @@ sub segment {
         push(@{$result{$group}}, $path);
     }
 
-    return(%result) unless defined $args{max};
+    return(%result) unless exists($args{max}) or exists($args{segment_max});
 
     foreach $key (keys %result) {
+        my $max = $args{segment_max}{$key} || $args{max} || 1000;
         $size = scalar(@{$result{$key}});
-        next unless $size > $args{max};
+        next unless $size > $max;
 
         my $index = 1;
 
-        while (scalar(@{$result{$key}}) > $args{max}) {
-            my @segment = splice @{$result{$key}}, 0, $args{max};
+        while (scalar(@{$result{$key}}) > $max) {
+            my @segment = splice @{$result{$key}}, 0, $max;
             $result{$key . '.' . $index} = \@segment;
             $index++;
         }
@@ -84,6 +85,10 @@ the path depth from which to create the segments. defaults to 1.
 =item max
 
 the maximum number of files per segment.
+
+=item segment_max
+
+a hash defining the max number of files per segment name (e.g. C<< segment_max => {'tests.Unit' => 1000} >>)
 
 =back
 

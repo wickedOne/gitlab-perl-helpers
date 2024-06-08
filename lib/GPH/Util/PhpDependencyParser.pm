@@ -19,15 +19,29 @@ sub new {
 }
 
 sub dir {
-    my ($self, $dir, $strip) = @_;
+    my ($self, %args) = @_;
 
-    my @files = File::Find::Rule->file()
-        ->name('*.php')
-        ->in($dir)
-    ;
+    (exists($args{directories}) && exists($args{strip})) or die "$!";
+
+    my $rule = File::Find::Rule->new;
+
+    if (exists($args{excludes})) {
+        $rule->or(
+            $rule->new->exec(sub {
+                my ($shortname, $path, $fullname) = @_;
+                foreach my $exclude (@{$args{excludes}}) {
+                    return 1 if $fullname =~ $exclude;
+                }
+                return 0;
+            })->prune->discard,
+            $rule->new
+        );
+    }
+
+    my @files = $rule->name('*.php')->in(@{$args{directories}});
 
     foreach my $file (@files) {
-        $self->parse($file, $strip);
+        $self->parse($file, $args{strip});
     }
 
     return ($self);
@@ -226,10 +240,26 @@ GPH::Util::PhpDependencyParser - parses one or more php files and builds a depen
 
 the C<new> method creates a new GPH::Util::PhpDependencyParser.
 
-=item C<< -E<gt>dir($directory, $strip) >>
+=item C<< -E<gt>dir(%args) >>
 
-scans and builds a dependency map from all php files in C< $directory >. the resulting paths will be stripped of the
-prefix defined in C<$strip>
+scans and builds a dependency map from all php files in defined directories. the resulting paths will be stripped of the
+prefix if defined in the C<$strip> argument. the dir method takes a hash of options, valid option keys include:
+
+=over
+
+=item directories B<(required)>
+
+an array of directory paths (relative to script execution) to scan
+
+=item strip B<(required)>
+
+the prefix to strip from the paths
+
+=item excludes
+
+an array of directory paths (relative to script execution) to exclude from the scan
+
+=back
 
 =item C<< -E<gt>parse($filepath, $strip) >>
 

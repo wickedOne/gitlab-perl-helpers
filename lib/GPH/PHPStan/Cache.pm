@@ -3,6 +3,8 @@ package GPH::PHPStan::Cache;
 use strict;
 use warnings FATAL => 'all';
 
+use Cwd;
+
 sub new {
     my ($class, %args) = @_;
 
@@ -26,7 +28,7 @@ sub parseResultCache {
 
     (exists($args{path})) or die "$!";
 
-    open $fh, '<', $args{path} or die "unable to open cache file: $!";
+    open $fh, '<', getcwd() . '/' . $args{path} or die "unable to open cache file: $!";
 
 
     while ($line = <$fh>) {
@@ -119,7 +121,7 @@ the C<new> method creates a new GPH::PHPUnit::Config. it takes a hash of options
 
 =item path B<(required)>
 
-path to the C<resultCache.php> file
+path to the C<resultCache.php> file relative to the script execution path.
 
 =item depth
 
