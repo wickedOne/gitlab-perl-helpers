@@ -18,7 +18,7 @@ describe "parse phpunit output" => sub {
         $exception = dies {
             $warnings = warns {
                 $file = File::Temp::tmpnam();
-                $c = system("/bin/cat ./t/share/PHPUnit/phpunit-output-functional.txt | ./coverage2codeowner.pl > $file");
+                $c = system("/bin/cat ./t/share/PHPUnit/phpunit-output-functional.txt | ./scripts/coverage2codeowner.pl > $file");
             };
         };
 

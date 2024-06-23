@@ -1,0 +1,11 @@
+include:
+  - ../fixtures.yaml
+#  - ../commented-fixtures.yaml
+
+Foo\App\SomeEntity:
+  some_key:
+    someProp: 'foo'
+
+\Foo\App\AnotherEntity:
+  another_key:
+    anotherProp: 'bar'

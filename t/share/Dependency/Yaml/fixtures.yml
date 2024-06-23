@@ -1,0 +1,11 @@
+include:
+  - App/fixtures.yaml
+  - App/sub_fixtures.yaml
+  - App/other_fixtures.yaml
+
+#Foo\Entity\DeprecatedEntity:
+#  deprecated_key:
+#    deprecatedProp: 'qux'
+Foo\MockEntity:
+  some_key:
+    someProp: 'foo'

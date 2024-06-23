@@ -19,7 +19,7 @@ describe "generate phpmd config" => sub {
         $exception = dies {
             $warnings = warns {
                 $file = File::Temp::tmpnam();
-                $c = system("$^X codeowner2phpmd.pl > $file");
+                $c = system("$^X scripts/codeowner2phpmd.pl > $file");
             };
         };
 

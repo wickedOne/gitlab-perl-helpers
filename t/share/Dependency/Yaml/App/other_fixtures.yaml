@@ -1,0 +1,6 @@
+include:
+  - sub_fixtures.yaml
+
+Foo\MockEntity:
+  yet_another_key:
+    someProp: 'foo'
