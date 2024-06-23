@@ -19,7 +19,7 @@ describe "generate PHPStan config" => sub {
         $exception = dies {
             $warnings = warns {
                 $file = File::Temp::tmpnam();
-                $c = system("$^X codeowner2phpstan.pl > $file");
+                $c = system("$^X scripts/codeowner2phpstan.pl > $file");
             };
         };
 

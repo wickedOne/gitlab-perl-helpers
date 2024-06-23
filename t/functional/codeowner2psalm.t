@@ -19,7 +19,7 @@ describe "generate Psalm config" => sub {
         $exception = dies {
             $warnings = warns {
                 $file = File::Temp::tmpnam();
-                $c = system("$^X codeowner2psalm.pl > $file");
+                $c = system("$^X scripts/codeowner2psalm.pl > $file");
             };
         };
 

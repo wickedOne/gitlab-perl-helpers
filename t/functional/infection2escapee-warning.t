@@ -18,7 +18,7 @@ describe "parse infection output" => sub {
         $exception = dies {
             $warnings = warns {
                 $file = File::Temp::tmpnam();
-                $c = system("/bin/cat ./t/share/Infection/infection-output-functional.txt | ./infection2escapee-warning.pl > $file");
+                $c = system("/bin/cat ./t/share/Infection/infection-output-functional.txt | ./scripts/infection2escapee-warning.pl > $file");
             };
         };
 

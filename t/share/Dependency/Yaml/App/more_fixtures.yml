@@ -1,0 +1,3 @@
+App\Foo\FooEntity:
+  foo_entity_key:
+    fooProp: 'bar'
