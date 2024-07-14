@@ -3,7 +3,7 @@ package GPH;
 use strict;
 use warnings FATAL => 'all';
 
-our $VERSION = '1.4.1';
+our $VERSION = '1.4.2';
 
 1;
 
@@ -55,7 +55,7 @@ generate custom configuration file for L<Psalm|https://psalm.dev/>
 
 =head1 VERSION
 
-1.4.1
+1.4.2
 
 =head1 AUTHOR
 
