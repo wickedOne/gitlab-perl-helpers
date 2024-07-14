@@ -152,6 +152,7 @@ describe "class `$CLASS` parse method" => sub {
                             field 'config' => 'Configuration';
                             field 'fooProvider' => '?FooProvider';
                             field 'barProvider' => 'BarProvider';
+                            field 'entityManager' => '?EntityManagerInterface';
                             end;
                         };
                         field teared => hash {
@@ -179,6 +180,7 @@ describe "class `$CLASS` parse method" => sub {
   property: config type: Configuration
   property: fooProvider type: ?FooProvider
   property: barProvider type: BarProvider
+  property: entityManager type: ?EntityManagerInterface
   has teardown
   property: foo was found in teardown
   property: fixtures was found in teardown
@@ -239,6 +241,7 @@ describe "class `$CLASS` parse method" => sub {
                             field 'barProvider' => 'BarProvider';
                             field 'bar' => 'string';
                             field 'fooProvider' => '?FooProvider';
+                            field 'entityManager' => '?EntityManagerInterface';
                             end;
                         };
                         field teared => hash {
@@ -283,7 +286,7 @@ describe "class `$CLASS` validate method" => sub {
 
         is($result, 1, 'teardown check has invalid files') or diag Dumper($object);
         is($stdout, 'file t/share/PHPUnit/InvalidTeardownTestCase.php is invalid: property \'bar\' is not teared down
-file t/share/PHPUnit/TeardownTest.php is invalid: properties \'barProvider\', \'config\' are not teared down', 'stdout as expected') or diag Dumper($stdout);
+file t/share/PHPUnit/TeardownTest.php is invalid: properties \'barProvider\', \'config\', \'entityManager\' are not teared down', 'stdout as expected') or diag Dumper($stdout);
     };
 };
 

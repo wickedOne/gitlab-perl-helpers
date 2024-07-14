@@ -17,9 +17,14 @@ class TeardownTest extends TestCase
     private Configuration $config;
     public static ?FooProvider $fooProvider;
     public static BarProvider $barProvider;
+    private ?EntityManagerInterface $entityManager = null;
 
     public function tearDown(): void
     {
+        if ($this->entityManager->getConnection()->isTransactionActive()) {
+            $this->entityManager->rollback();
+        }
+
         unset($this->foo, $this->fixtures);
 
         $this->config->reset();

@@ -61,8 +61,8 @@ sub parse {
             }
 
             # check teardown methods
-            if ($_ =~ '([\s]+)(?:protected |public )function tearDown\(\): void'
-                or $_ =~ '([\s]+)(?:protected |public )static function tearDownAfterClass\(\): void'
+            if ($_ =~ '^([ ]+)(?:protected |public )function tearDown\(\): void'
+                or $_ =~ '^([ ]+)(?:protected |public )static function tearDownAfterClass\(\): void'
             ) {
                 $teardown = 1;
                 $in_teardown = 1;
@@ -82,7 +82,7 @@ sub parse {
                         $teared{$match} = 1;
                     }
 
-                    if ($line =~ /$spaces}$/) {
+                    if ($line =~ /^$spaces}$/) {
                         $in_teardown = 0;
                         last;
                     }
